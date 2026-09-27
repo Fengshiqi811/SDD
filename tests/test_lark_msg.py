@@ -73,7 +73,7 @@ def test_collect_signature_and_message_record_fields():
         _messages_ok([_msg_item(content="项目进度同步：登录页已完成")]),
     ]
 
-    records = collect(
+    result = collect(
         CHAT_ID,
         KEYWORDS,
         SINCE,
@@ -84,6 +84,8 @@ def test_collect_signature_and_message_record_fields():
         sleep_fn=lambda _: None,
     )
 
+    records = result.records
+    assert result.success is True
     assert len(records) == 1
     record = records[0]
     assert isinstance(record, MessageRecord)
@@ -107,7 +109,7 @@ def test_keyword_filter_keeps_only_matching_messages():
         ),
     ]
 
-    records = collect(
+    result = collect(
         CHAT_ID,
         KEYWORDS,
         SINCE,
@@ -117,6 +119,7 @@ def test_keyword_filter_keeps_only_matching_messages():
         client=client,
         sleep_fn=lambda _: None,
     )
+    records = result.records
 
     contents = [r.content for r in records]
     assert contents == [
@@ -140,7 +143,7 @@ def test_sensitive_keywords_are_filtered_out():
         ),
     ]
 
-    records = collect(
+    result = collect(
         CHAT_ID,
         KEYWORDS,
         SINCE,
@@ -150,6 +153,7 @@ def test_sensitive_keywords_are_filtered_out():
         client=client,
         sleep_fn=lambda _: None,
     )
+    records = result.records
 
     contents = [r.content for r in records]
     assert "讨论薪资调整的进度安排" not in contents
@@ -170,7 +174,7 @@ def test_token_expired_auto_refresh_and_retry_once():
         _messages_ok([_msg_item(content="刷新后拿到进度更新")]),
     ]
 
-    records = collect(
+    result = collect(
         CHAT_ID,
         KEYWORDS,
         SINCE,
@@ -181,6 +185,8 @@ def test_token_expired_auto_refresh_and_retry_once():
         sleep_fn=lambda _: None,
     )
 
+    records = result.records
+    assert result.success is True
     assert len(records) == 1
     assert records[0].content == "刷新后拿到进度更新"
     assert client.request.call_count == 4
@@ -194,7 +200,7 @@ def test_timeout_retries_three_times_then_returns_empty(caplog):
     sleeps: list[float] = []
 
     with caplog.at_level("ERROR"):
-        records = collect(
+        result = collect(
             CHAT_ID,
             KEYWORDS,
             SINCE,
@@ -207,7 +213,8 @@ def test_timeout_retries_three_times_then_returns_empty(caplog):
             sleep_fn=sleeps.append,
         )
 
-    assert records == []
+    assert result.success is False
+    assert result.records == []
     assert client.request.call_count == 3
     assert sleeps == [5.0, 5.0]
     assert any("飞书消息采集失败" in message for message in caplog.messages)

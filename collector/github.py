@@ -10,6 +10,7 @@ from typing import Any, Callable
 
 import httpx
 
+from collector.result import CollectResult
 from shared.logger import get_logger
 
 logger = get_logger("collector.github")
@@ -45,14 +46,14 @@ def collect(
     retry_interval: float = DEFAULT_RETRY_INTERVAL,
     rate_limit_retries: int = DEFAULT_RATE_LIMIT_RETRIES,
     sleep_fn: Callable[[float], None] = time.sleep,
-) -> list[CommitRecord]:
+) -> CollectResult[CommitRecord]:
     """采集指定仓库在时间窗口内的 commit 记录。
 
-    超时重试 max_retries 次（间隔 retry_interval 秒）；仍失败返回空列表并记错误日志。
+    超时重试 max_retries 次（间隔 retry_interval 秒）；仍失败返回 success=False。
     遇到 HTTP 403 限流时，等待 X-RateLimit-Reset / Retry-After 后重试。
     """
     if not repos:
-        return []
+        return CollectResult(success=True, records=[])
 
     auth_token = token if token is not None else os.getenv("GITHUB_TOKEN", "")
     headers = {
@@ -68,19 +69,34 @@ def collect(
 
     try:
         records: list[CommitRecord] = []
+        errors: list[str] = []
         for repo in repos:
-            repo_records = _collect_repo(
-                client=http_client,
-                repo=repo,
-                since=since,
-                until=until,
-                max_retries=max_retries,
-                retry_interval=retry_interval,
-                rate_limit_retries=rate_limit_retries,
-                sleep_fn=sleep_fn,
-            )
-            records.extend(repo_records)
-        return records
+            try:
+                repo_records = _collect_repo(
+                    client=http_client,
+                    repo=repo,
+                    since=since,
+                    until=until,
+                    max_retries=max_retries,
+                    retry_interval=retry_interval,
+                    rate_limit_retries=rate_limit_retries,
+                    sleep_fn=sleep_fn,
+                )
+                records.extend(repo_records)
+            except _CollectFailed as exc:
+                logger.error(
+                    "GitHub 采集失败",
+                    extra={"repo": repo, "error": str(exc)},
+                )
+                errors.append(f"{repo}: {exc}")
+
+        if errors and not records:
+            return CollectResult(success=False, records=[], error_message="; ".join(errors))
+        return CollectResult(
+            success=True,
+            records=records,
+            error_message="; ".join(errors) if errors else None,
+        )
     finally:
         if owns_client:
             http_client.close()
@@ -97,46 +113,31 @@ def _collect_repo(
     rate_limit_retries: int,
     sleep_fn: Callable[[float], None],
 ) -> list[CommitRecord]:
-    try:
-        commit_summaries = _list_commits(
-            client=client,
-            repo=repo,
-            since=since,
-            until=until,
-            max_retries=max_retries,
-            retry_interval=retry_interval,
-            rate_limit_retries=rate_limit_retries,
-            sleep_fn=sleep_fn,
-        )
-    except _CollectFailed as exc:
-        logger.error(
-            "GitHub 采集失败，返回空列表",
-            extra={"repo": repo, "error": str(exc)},
-        )
-        return []
+    commit_summaries = _list_commits(
+        client=client,
+        repo=repo,
+        since=since,
+        until=until,
+        max_retries=max_retries,
+        retry_interval=retry_interval,
+        rate_limit_retries=rate_limit_retries,
+        sleep_fn=sleep_fn,
+    )
 
     records: list[CommitRecord] = []
     for summary in commit_summaries:
         sha = summary.get("sha")
         if not sha:
             continue
-        try:
-            detail = _get_commit_detail(
-                client=client,
-                repo=repo,
-                sha=sha,
-                max_retries=max_retries,
-                retry_interval=retry_interval,
-                rate_limit_retries=rate_limit_retries,
-                sleep_fn=sleep_fn,
-            )
-        except _CollectFailed as exc:
-            logger.error(
-                "GitHub 采集失败，返回空列表",
-                extra={"repo": repo, "sha": sha, "error": str(exc)},
-            )
-            return []
-
+        detail = _get_commit_detail(
+            client=client,
+            repo=repo,
+            sha=sha,
+            max_retries=max_retries,
+            retry_interval=retry_interval,
+            rate_limit_retries=rate_limit_retries,
+            sleep_fn=sleep_fn,
+        )
         record = _to_commit_record(repo=repo, summary=summary, detail=detail)
         if record is not None:
             records.append(record)

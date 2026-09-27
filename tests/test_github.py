@@ -83,8 +83,10 @@ def test_collect_signature_and_commit_record_fields():
         _mock_response(json_data=detail),
     ]
 
-    records = collect(["org/repo-a"], SINCE, UNTIL, client=client, sleep_fn=lambda _: None)
+    result = collect(["org/repo-a"], SINCE, UNTIL, client=client, sleep_fn=lambda _: None)
 
+    records = result.records
+    assert result.success is True
     assert len(records) == 1
     record = records[0]
     assert isinstance(record, CommitRecord)
@@ -124,8 +126,10 @@ def test_collect_supports_pagination():
         )
     client.request.side_effect = responses
 
-    records = collect(["org/repo-a"], SINCE, UNTIL, client=client, sleep_fn=lambda _: None)
+    result = collect(["org/repo-a"], SINCE, UNTIL, client=client, sleep_fn=lambda _: None)
 
+    records = result.records
+    assert result.success is True
     assert len(records) == 31
     # 两次列表请求：page=1 和 page=2
     list_calls = [
@@ -145,7 +149,7 @@ def test_timeout_retries_three_times_then_returns_empty(caplog):
     sleeps: list[float] = []
 
     with caplog.at_level("ERROR"):
-        records = collect(
+        result = collect(
             ["org/repo-a"],
             SINCE,
             UNTIL,
@@ -155,7 +159,8 @@ def test_timeout_retries_three_times_then_returns_empty(caplog):
             sleep_fn=sleeps.append,
         )
 
-    assert records == []
+    assert result.success is False
+    assert result.records == []
     assert client.request.call_count == 3
     assert sleeps == [5.0, 5.0]
     assert any("GitHub 采集失败" in message for message in caplog.messages)
@@ -177,7 +182,7 @@ def test_rate_limit_403_waits_reset_then_retries():
     client.request.side_effect = [limited, ok_list, ok_detail]
 
     sleeps: list[float] = []
-    records = collect(
+    result = collect(
         ["org/repo-b"],
         SINCE,
         UNTIL,
@@ -185,6 +190,8 @@ def test_rate_limit_403_waits_reset_then_retries():
         sleep_fn=sleeps.append,
     )
 
+    records = result.records
+    assert result.success is True
     assert len(records) == 1
     assert records[0].author == "lisi"
     assert len(sleeps) == 1
@@ -210,8 +217,10 @@ def test_collect_multiple_repos():
 
     client.request.side_effect = side_effect
 
-    records = collect(["org/a", "org/b"], SINCE, UNTIL, client=client, sleep_fn=lambda _: None)
+    result = collect(["org/a", "org/b"], SINCE, UNTIL, client=client, sleep_fn=lambda _: None)
 
+    records = result.records
+    assert result.success is True
     assert len(records) == 2
     assert {r.repo for r in records} == {"org/a", "org/b"}
     assert {r.author for r in records} == {"alice", "bob"}

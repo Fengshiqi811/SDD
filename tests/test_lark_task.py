@@ -68,7 +68,7 @@ def test_collect_signature_and_task_record_fields():
         ),
     ]
 
-    records = collect(
+    result = collect(
         PROJECT_ID,
         SINCE,
         UNTIL,
@@ -78,6 +78,8 @@ def test_collect_signature_and_task_record_fields():
         sleep_fn=lambda _: None,
     )
 
+    records = result.records
+    assert result.success is True
     assert len(records) == 1
     record = records[0]
     assert isinstance(record, TaskRecord)
@@ -115,7 +117,7 @@ def test_token_expired_auto_refresh_and_retry_once():
         ),
     ]
 
-    records = collect(
+    result = collect(
         PROJECT_ID,
         SINCE,
         UNTIL,
@@ -125,6 +127,8 @@ def test_token_expired_auto_refresh_and_retry_once():
         sleep_fn=lambda _: None,
     )
 
+    records = result.records
+    assert result.success is True
     assert len(records) == 1
     assert records[0].title == "修复缺陷"
     assert records[0].assignee == "lisi@company.com"
@@ -141,7 +145,7 @@ def test_timeout_retries_three_times_then_returns_empty(caplog):
     sleeps: list[float] = []
 
     with caplog.at_level("ERROR"):
-        records = collect(
+        result = collect(
             PROJECT_ID,
             SINCE,
             UNTIL,
@@ -153,7 +157,8 @@ def test_timeout_retries_three_times_then_returns_empty(caplog):
             sleep_fn=sleeps.append,
         )
 
-    assert records == []
+    assert result.success is False
+    assert result.records == []
     assert client.request.call_count == 3
     assert sleeps == [5.0, 5.0]
     assert any("飞书任务采集失败" in message for message in caplog.messages)
@@ -177,7 +182,7 @@ def test_filters_tasks_outside_time_window():
         ),
     ]
 
-    records = collect(
+    result = collect(
         PROJECT_ID,
         SINCE,
         UNTIL,
@@ -186,6 +191,7 @@ def test_filters_tasks_outside_time_window():
         client=client,
         sleep_fn=lambda _: None,
     )
+    records = result.records
 
     assert [r.title for r in records] == ["当天任务"]
 
@@ -204,7 +210,7 @@ def test_http_401_triggers_token_refresh():
         ),
     ]
 
-    records = collect(
+    result = collect(
         PROJECT_ID,
         SINCE,
         UNTIL,
@@ -214,5 +220,7 @@ def test_http_401_triggers_token_refresh():
         sleep_fn=lambda _: None,
     )
 
+    records = result.records
+    assert result.success is True
     assert len(records) == 1
     assert records[0].title == "401恢复"

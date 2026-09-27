@@ -10,6 +10,7 @@ from typing import Any, Callable
 
 import httpx
 
+from collector.result import CollectResult
 from shared.logger import get_logger
 
 logger = get_logger("collector.lark_task")
@@ -49,13 +50,13 @@ def collect(
     max_retries: int = DEFAULT_MAX_RETRIES,
     retry_interval: float = DEFAULT_RETRY_INTERVAL,
     sleep_fn: Callable[[float], None] = time.sleep,
-) -> list[TaskRecord]:
+) -> CollectResult[TaskRecord]:
     """采集指定项目在时间窗口内发生状态变更的任务。
 
-    token 过期时自动刷新并重试 1 次；超时时重试 max_retries 次，仍失败返回空列表。
+    token 过期时自动刷新并重试 1 次；超时时重试 max_retries 次，仍失败返回 success=False。
     """
     if not project_id:
-        return []
+        return CollectResult(success=True, records=[])
 
     resolved_app_id = app_id if app_id is not None else os.getenv("LARK_APP_ID", "")
     resolved_app_secret = app_secret if app_secret is not None else os.getenv("LARK_APP_SECRET", "")
@@ -87,17 +88,17 @@ def collect(
             )
         except _CollectFailed as exc:
             logger.error(
-                "飞书任务采集失败，返回空列表",
+                "飞书任务采集失败",
                 extra={"project_id": project_id, "error": str(exc)},
             )
-            return []
+            return CollectResult(success=False, records=[], error_message=str(exc))
 
         records: list[TaskRecord] = []
         for item in items:
             record = _to_task_record(item, since=since, until=until)
             if record is not None:
                 records.append(record)
-        return records
+        return CollectResult(success=True, records=records)
     finally:
         if owns_client:
             http_client.close()
