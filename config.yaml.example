@@ -1,0 +1,46 @@
+# 智能日报生成器 — 配置文件模板
+# 使用方式：复制为 config.yaml 并填入实际值
+#   cp config.yaml.example config.yaml
+
+team_name: "研发团队"
+
+# 成员身份映射表：关联姓名与各平台账号
+members:
+  - name: "张三"
+    github: "zhangsan"
+    lark: "zhangsan@company.com"
+  - name: "李四"
+    github: "lisi-dev"
+    lark: "lisi@company.com"
+  - name: "王五"
+    github: "wangwu"
+    lark: "wangwu@company.com"
+
+# GitHub 采集配置
+github:
+  repos:
+    - "org/repo-a"
+    - "org/repo-b"
+  # token 通过环境变量 GITHUB_TOKEN 注入，勿硬编码
+
+# 飞书采集配置
+lark:
+  project_id: "your-project-id"
+  chat_id: "your-chat-id"
+  keywords:
+    - "进度"
+    - "阻塞"
+    - "评审"
+  # app_id / app_secret 通过环境变量注入：
+  # LARK_APP_ID, LARK_APP_SECRET
+
+# 推送配置
+notifier:
+  email:
+    recipients:
+      - "leader@company.com"
+    # SMTP 凭据通过环境变量注入：
+    # SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD
+  lark_bot:
+    # webhook URL 通过环境变量 LARK_BOT_WEBHOOK 注入
+    chat_id: "your-notify-chat-id"
