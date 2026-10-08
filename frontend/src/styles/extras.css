@@ -1,0 +1,168 @@
+/* Ambient page atmosphere + native form controls for Vue app */
+
+#app {
+  min-height: 100vh;
+}
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(900px 420px at 8% -10%, rgba(20, 118, 255, 0.14), transparent 60%),
+    radial-gradient(700px 380px at 96% 0%, rgba(92, 179, 0, 0.1), transparent 55%),
+    radial-gradient(600px 320px at 70% 100%, rgba(65, 145, 250, 0.08), transparent 50%),
+    var(--app-bg);
+}
+
+.od-app {
+  position: relative;
+}
+
+.field input[type="date"],
+.field input[type="text"],
+.field input:not([type]) {
+  display: block;
+  width: 100%;
+  height: var(--tv-control-height);
+  padding: 0 var(--tv-space-3);
+  border: 1px solid var(--tv-color-border);
+  border-radius: var(--app-radius-control);
+  background: var(--app-surface);
+  color: var(--app-text);
+  font: inherit;
+  font-size: var(--tv-font-size-md);
+  transition: border-color var(--tv-duration-fast) var(--tv-ease-out),
+    box-shadow var(--tv-duration-fast) var(--tv-ease-out);
+}
+
+.field input:hover {
+  border-color: var(--tv-base-color-common-8);
+}
+
+.field input:focus {
+  outline: none;
+  border-color: var(--app-primary);
+  box-shadow: 0 0 0 3px var(--tv-color-focus-ring);
+}
+
+.field input::placeholder {
+  color: var(--tv-color-text-placeholder);
+}
+
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: var(--tv-radius-round);
+  font-size: var(--tv-font-size-sm);
+  font-weight: var(--tv-font-weight-medium);
+  background: var(--tv-base-color-common-4);
+  color: var(--app-text-2);
+}
+
+.status-chip__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  flex: none;
+}
+
+.status-chip--idle {
+  background: var(--tv-base-color-common-4);
+  color: var(--app-text-2);
+}
+
+.status-chip--loading {
+  background: var(--tv-base-color-brand-1);
+  color: var(--tv-base-color-brand-7);
+}
+
+.status-chip--ok {
+  background: var(--tv-base-color-success-1);
+  color: var(--tv-base-color-success-7);
+}
+
+.status-chip--err {
+  background: var(--tv-base-color-error-1);
+  color: var(--tv-base-color-error-7);
+}
+
+.raw-json {
+  margin: 0;
+  padding: var(--tv-space-4) var(--tv-space-5);
+  font-family: var(--tv-font-family-mono);
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: #d7dce8;
+  background: #1e2129;
+  white-space: pre-wrap;
+  word-break: break-word;
+  min-height: 100%;
+}
+
+.source-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.source-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: var(--tv-radius-round);
+  font-size: 12px;
+  font-weight: var(--tv-font-weight-medium);
+}
+
+.source-pill--github {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.source-pill--lark {
+  background: #e8f7f0;
+  color: #0d7a4f;
+}
+
+.source-pill--msg {
+  background: #fff4e6;
+  color: #d96b00;
+}
+
+.pane__hint {
+  font-size: var(--tv-font-size-sm);
+  color: var(--app-text-3);
+}
+
+.topbar__logo {
+  box-shadow: 0 6px 16px rgba(20, 118, 255, 0.28);
+}
+
+.btn--primary {
+  box-shadow: 0 4px 12px rgba(20, 118, 255, 0.22);
+}
+
+.btn--primary:hover {
+  box-shadow: 0 6px 16px rgba(20, 118, 255, 0.3);
+}
+
+.workspace {
+  min-height: 520px;
+}
+
+.state__art--brand {
+  background: linear-gradient(160deg, var(--tv-base-color-brand-1), var(--tv-base-color-brand-2));
+  color: var(--tv-base-color-brand-6);
+  box-shadow: inset 0 0 0 1px var(--tv-base-color-brand-3);
+}
+
+.state__art--preview {
+  background: linear-gradient(160deg, #edf7df, #daf2bb);
+  color: var(--tv-base-color-success-7);
+  box-shadow: inset 0 0 0 1px var(--tv-base-color-success-3);
+}

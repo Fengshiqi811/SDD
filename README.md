@@ -21,3 +21,10 @@ notifier/    # 推送层
 shared/      # 共享基础层
 tests/       # 测试
 ```
+# PageDailyReport 智能日报生成器
+## 启动步骤
+1. 启动后端：python main.py （端口5000）
+2. 启动前端：npm install 、npm run dev （端口5173）
+3. 浏览器访问 http://localhost:5173
+4. 填写日期、姓名，点击刷新生成日报
+

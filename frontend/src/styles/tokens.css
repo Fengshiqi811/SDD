@@ -1,0 +1,161 @@
+/* ==========================================================================
+   OpenDesign / TinyVue theme layer
+   All UI in this prototype consumes these tokens. No component hard-codes
+   a color, radius, spacing or motion value outside this file.
+   Token names mirror the OpenTiny (`--tv-*`) design-token contract so the
+   page can be ported onto the real TinyVue theme with no visual change.
+   ========================================================================== */
+:root,
+:host {
+  /* 1.1 品牌色 Brand */
+  --tv-base-color-brand: #191919;
+  --tv-base-color-brand-1: #f0f7ff;
+  --tv-base-color-brand-2: #deecff;
+  --tv-base-color-brand-3: #b3d6ff;
+  --tv-base-color-brand-4: #7eb7fc;
+  --tv-base-color-brand-5: #4191fa;
+  --tv-base-color-brand-6: #1476ff; /* 主交互蓝 */
+  --tv-base-color-brand-7: #0f5ed4;
+  --tv-base-color-brand-8: #0845a6;
+  --tv-base-color-brand-9: #022e7a;
+  --tv-base-color-brand-10: #001a4a;
+
+  /* 1.2 中立色 Neutral */
+  --tv-base-color-common-1: #ffffff;
+  --tv-base-color-common-2: #fafafa;
+  --tv-base-color-common-3: #f5f5f5;
+  --tv-base-color-common-4: #f0f0f0;
+  --tv-base-color-common-5: #e6e6e6;
+  --tv-base-color-common-6: #dbdbdb;
+  --tv-base-color-common-7: #c2c2c2;
+  --tv-base-color-common-8: #808080;
+  --tv-base-color-common-9: #595959;
+  --tv-base-color-common-10: #333333;
+  --tv-base-color-common-11: #191919;
+  --tv-base-color-common-12: #000000;
+
+  /* 1.3 功能色 Functional */
+  --tv-base-color-success-1: #edf7df;
+  --tv-base-color-success-2: #daf2bb;
+  --tv-base-color-success-3: #b9e683;
+  --tv-base-color-success-6: #5cb300;
+  --tv-base-color-success-7: #4b9902;
+
+  --tv-base-color-warning-1: #fff4e6;
+  --tv-base-color-warning-2: #ffe0bf;
+  --tv-base-color-warning-3: #ffc587;
+  --tv-base-color-warning-6: #ff8800;
+  --tv-base-color-warning-7: #d96b00;
+
+  --tv-base-color-error-1: #ffeeed;
+  --tv-base-color-error-2: #ffd6d3;
+  --tv-base-color-error-3: #ffb0aa;
+  --tv-base-color-error-6: #f23030;
+  --tv-base-color-error-7: #cf1f1f;
+
+  --tv-base-color-info-6: #1476ff;
+  --tv-base-color-info-1: #f0f7ff;
+
+  /* 2.x 语义别名（组件直接消费） */
+  --tv-color-text: var(--tv-base-color-common-11);
+  --tv-color-text-secondary: var(--tv-base-color-common-9);
+  --tv-color-text-weaken: var(--tv-base-color-common-8);
+  --tv-color-text-placeholder: var(--tv-base-color-common-8);
+  --tv-color-text-disabled: var(--tv-base-color-common-7);
+  --tv-color-text-link: var(--tv-base-color-brand-6);
+  --tv-color-text-active: var(--tv-base-color-brand-6);
+  --tv-color-text-on-brand: var(--tv-base-color-common-1);
+
+  --tv-color-icon: var(--tv-base-color-common-8);
+  --tv-color-icon-hover: var(--tv-base-color-common-11);
+
+  --tv-color-bg: var(--tv-base-color-common-3);
+  --tv-color-bg-secondary: var(--tv-base-color-common-1);
+  --tv-color-bg-hover: var(--tv-base-color-common-2);
+  --tv-color-bg-header: var(--tv-base-color-common-3);
+  --tv-color-bg-disabled: var(--tv-base-color-common-4);
+
+  --tv-color-border: var(--tv-base-color-common-6);
+  --tv-color-border-soft: var(--tv-base-color-common-4);
+  --tv-color-border-strong: var(--tv-base-color-common-7);
+  --tv-color-focus-ring: rgba(20, 118, 255, 0.22);
+
+  --tv-color-mask: rgba(0, 0, 0, 0.4);
+  --tv-color-mask-light: rgba(255, 255, 255, 0.66);
+
+  /* 3. 字体 Typography */
+  --tv-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+  --tv-font-family-mono: "SFMono-Regular", "JetBrains Mono", Consolas,
+    "Liberation Mono", Menlo, monospace;
+
+  --tv-font-size-sm: 13px;
+  --tv-font-size-md: 14px;
+  --tv-font-size-body: 16px;
+  --tv-font-size-lg: 18px;
+  --tv-font-size-xl: 22px;
+  --tv-font-size-xxl: 28px;
+
+  --tv-font-weight-regular: 400;
+  --tv-font-weight-medium: 500;
+  --tv-font-weight-semibold: 600;
+
+  --tv-line-height-tight: 1.3;
+  --tv-line-height-base: 1.6;
+
+  /* 4. 尺寸与间距 Size & Spacing (4 / 8 rhythm) */
+  --tv-space-1: 4px;
+  --tv-space-2: 8px;
+  --tv-space-3: 12px;
+  --tv-space-4: 16px;
+  --tv-space-5: 20px;
+  --tv-space-6: 24px;
+  --tv-space-8: 32px;
+  --tv-space-10: 40px;
+
+  --tv-radius-xs: 2px;
+  --tv-radius-sm: 4px;
+  --tv-radius-md: 6px;
+  --tv-radius-lg: 8px;
+  --tv-radius-round: 999px;
+
+  --tv-control-height-sm: 28px;
+  --tv-control-height: 32px;
+  --tv-control-height-lg: 40px;
+
+  --tv-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --tv-shadow-pop: 0 6px 20px rgba(0, 0, 0, 0.1);
+  --tv-shadow-raised: 0 4px 12px rgba(0, 0, 0, 0.06);
+
+  /* 5. 动效 Motion */
+  --tv-duration-fast: 150ms;
+  --tv-duration-base: 200ms;
+  --tv-duration-slow: 320ms;
+  --tv-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --tv-ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+
+  /* 6. 页面级别名（仅供本原型产品层使用） */
+  --app-bg: var(--tv-base-color-common-3);
+  --app-surface: var(--tv-base-color-common-1);
+  --app-surface-muted: var(--tv-base-color-common-2);
+  --app-text: var(--tv-color-text);
+  --app-text-2: var(--tv-color-text-secondary);
+  --app-text-3: var(--tv-color-text-weaken);
+  --app-border: var(--tv-color-border-soft);
+  --app-primary: var(--tv-base-color-brand-6);
+  --app-primary-hover: var(--tv-base-color-brand-5);
+  --app-primary-active: var(--tv-base-color-brand-7);
+  --app-primary-soft: var(--tv-base-color-brand-1);
+  --app-radius: var(--tv-radius-lg);
+  --app-radius-control: var(--tv-radius-md);
+  --app-gap: var(--tv-space-2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root,
+  :host {
+    --tv-duration-fast: 0ms;
+    --tv-duration-base: 0ms;
+    --tv-duration-slow: 0ms;
+  }
+}

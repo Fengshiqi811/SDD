@@ -1,0 +1,158 @@
+{
+  "schema": "open-design.design-manifest.v1",
+  "title": "PageDailyReport · 智能日报生成器高保真原型",
+  "entryFile": "index.html",
+  "sourceFiles": {
+    "all": [
+      "DESIGN-SYSTEM.md",
+      "UI_SPEC.md",
+      "index.html",
+      "report-list.html",
+      "report-detail.html",
+      "report-generate.html",
+      "assets/tokens.css",
+      "assets/prototype.css",
+      "assets/mock-data.js",
+      "assets/prototype.js",
+      "components.html",
+      "frontend-design.md",
+      "assets/app.css",
+      "assets/app.js"
+    ],
+    "html": [
+      "index.html",
+      "report-list.html",
+      "report-detail.html",
+      "report-generate.html",
+      "components.html"
+    ],
+    "css": [
+      "assets/tokens.css",
+      "assets/prototype.css",
+      "assets/app.css"
+    ],
+    "scriptsAndComponents": [
+      "assets/mock-data.js",
+      "assets/prototype.js",
+      "assets/app.js"
+    ],
+    "assets": [
+      "DESIGN-SYSTEM.md",
+      "UI_SPEC.md",
+      "frontend-design.md"
+    ]
+  },
+  "screens": [
+    {
+      "file": "index.html",
+      "role": "launcher-overview",
+      "implementationNote": "原型入口导航；勿当作合并后的最终业务页。"
+    },
+    {
+      "file": "report-list.html",
+      "role": "screen",
+      "implementationNote": "日报列表：筛选、分页、空/加载/错误/无权限。对齐 DailyReportRecord / list_reports。"
+    },
+    {
+      "file": "report-detail.html",
+      "role": "screen",
+      "implementationNote": "日报详情：采集明细 + Markdown 预览；复制/导出/推送确认/删除。"
+    },
+    {
+      "file": "report-generate.html",
+      "role": "screen",
+      "implementationNote": "生成表单：POST /api/report { date, member }；可联调真实 Flask。"
+    },
+    {
+      "file": "components.html",
+      "role": "screen",
+      "implementationNote": "旧版组件清单，仅作对照；新实现以 prototype.* + DESIGN-SYSTEM.md 为准。"
+    }
+  ],
+  "screenFilePolicy": {
+    "mode": "screen-file-first",
+    "entryFileRole": "launcher-overview",
+    "rules": [
+      "Each distinct user-facing screen or surface must be delivered and implemented as its own file/route.",
+      "If a landing page is present or requested, keep it in landing.html and do not merge it into the product app screen.",
+      "When multiple HTML screens exist, index.html is a launcher/overview only; it must not be treated as the combined final UI.",
+      "Keep product app screens, landing pages, platform screens, and OS widget surfaces separate in production code."
+    ]
+  },
+  "appModules": [
+    "日报历史列表（ReportStorage）",
+    "日报详情（DailyReport + CommitRecord/TaskRecord/MessageRecord）",
+    "生成日报（POST /api/report）",
+    "导出/复制（前端）",
+    "推送邮件/飞书（库层有、HTTP 缺口，见 UI_SPEC）"
+  ],
+  "osWidgets": [],
+  "landingPage": {
+    "detection": "无独立营销落地页；index.html 仅为原型导航。",
+    "requiredSections": []
+  },
+  "tokens": {
+    "source": [
+      "DESIGN-SYSTEM.md",
+      "assets/tokens.css"
+    ],
+    "required": [
+      "background",
+      "surface",
+      "foreground",
+      "muted text",
+      "border",
+      "accent",
+      "radius",
+      "shadow",
+      "spacing",
+      "type scale",
+      "motion"
+    ],
+    "note": "青绿品牌色 + Sora / Noto Sans SC / JetBrains Mono。禁止紫白渐变与奶油陶土套路。"
+  },
+  "interactions": {
+    "source": [
+      "assets/prototype.js",
+      "assets/mock-data.js"
+    ],
+    "requiredStates": [
+      "default",
+      "hover",
+      "focus",
+      "active",
+      "disabled",
+      "loading",
+      "empty",
+      "error",
+      "success",
+      "forbidden"
+    ],
+    "requiredBehaviors": [
+      "列表筛选与客户端分页",
+      "详情跳转与 404",
+      "生成表单校验与提交 loading",
+      "复制 Markdown / 导出 HTML",
+      "删除与推送二次确认 Modal",
+      "Toast 成功反馈"
+    ],
+    "note": "真实 HTTP 仅 POST /api/report；其余为本地 mock，缺口见 UI_SPEC.md §5。"
+  },
+  "responsiveViewports": [
+    { "name": "mobile-compact", "width": 360, "height": 800, "category": "mobile", "mustAvoidHorizontalScroll": true },
+    { "name": "mobile-standard", "width": 390, "height": 844, "category": "mobile", "mustAvoidHorizontalScroll": true },
+    { "name": "mobile-large", "width": 430, "height": 932, "category": "mobile", "mustAvoidHorizontalScroll": true },
+    { "name": "foldable-small-tablet", "width": 600, "height": 960, "category": "foldable-tablet", "mustAvoidHorizontalScroll": true },
+    { "name": "tablet-portrait", "width": 820, "height": 1180, "category": "tablet", "mustAvoidHorizontalScroll": true },
+    { "name": "tablet-landscape", "width": 1024, "height": 768, "category": "tablet", "mustAvoidHorizontalScroll": true },
+    { "name": "laptop", "width": 1366, "height": 768, "category": "desktop", "mustAvoidHorizontalScroll": true },
+    { "name": "desktop", "width": 1440, "height": 900, "category": "desktop", "mustAvoidHorizontalScroll": true },
+    { "name": "wide", "width": 1920, "height": 1080, "category": "wide", "mustAvoidHorizontalScroll": true }
+  ],
+  "implementationChecklist": [
+    "从 index.html 进入，按 report-list → report-detail → report-generate 走通主路径。",
+    "先读 DESIGN-SYSTEM.md 与 UI_SPEC.md，再移植到 Vue/工程。",
+    "字段以 data-field 与 UI_SPEC 对照表为准，勿发明未标注能力。",
+    "Validate screenshots at desktop/tablet/mobile viewports with no horizontal overflow."
+  ]
+}

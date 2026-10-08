@@ -1,0 +1,171 @@
+/* ==========================================================================
+   PageDailyReport · Design Tokens (see DESIGN-SYSTEM.md)
+   All prototype UI consumes these variables — do not hard-code colors in pages.
+   ========================================================================== */
+
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;600&family=Sora:wght@500;600;700&display=swap");
+
+:root,
+:host {
+  /* Brand */
+  --brand: #0f766e;
+  --brand-hover: #0d9488;
+  --brand-active: #115e59;
+  --brand-soft: #ccfbf1;
+  --brand-ink: #134e4a;
+
+  /* Neutral */
+  --ink: #0f1c24;
+  --ink-2: #3d4f5c;
+  --ink-3: #6b7c88;
+  --line: #d5dde3;
+  --line-soft: #e8eef2;
+  --surface: #ffffff;
+  --surface-2: #f4f7f9;
+  --bg: #e7eef2;
+
+  /* Functional */
+  --ok: #15803d;
+  --ok-soft: #dcfce7;
+  --warn: #c2410c;
+  --warn-soft: #ffedd5;
+  --danger: #dc2626;
+  --danger-soft: #fee2e2;
+  --info-soft: #e0f2fe;
+
+  /* Code */
+  --code-bg: #152028;
+  --code-fg: #d7e0e8;
+
+  /* Type */
+  --font-display: "Sora", "Noto Sans SC", sans-serif;
+  --font-body: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-mono: "JetBrains Mono", Consolas, monospace;
+
+  --fs-xs: 12px;
+  --fs-sm: 13px;
+  --fs-md: 14px;
+  --fs-body: 16px;
+  --fs-lg: 18px;
+  --fs-xl: 22px;
+  --fs-xxl: 28px;
+
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+
+  --lh-tight: 1.3;
+  --lh-base: 1.6;
+
+  /* Space */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-pill: 999px;
+
+  --control-h: 32px;
+  --control-h-lg: 40px;
+
+  --shadow: 0 1px 2px rgba(15, 28, 36, 0.04), 0 8px 24px rgba(15, 28, 36, 0.04);
+
+  /* Motion */
+  --dur-fast: 150ms;
+  --dur-base: 220ms;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Aliases used by older OpenDesign class names (compat) */
+  --app-bg: var(--bg);
+  --app-surface: var(--surface);
+  --app-text: var(--ink);
+  --app-text-2: var(--ink-2);
+  --app-text-3: var(--ink-3);
+  --app-border: var(--line-soft);
+  --app-primary: var(--brand);
+  --app-primary-hover: var(--brand-hover);
+  --app-primary-active: var(--brand-active);
+  --app-primary-soft: var(--brand-soft);
+  --app-radius: var(--radius-md);
+  --app-radius-control: var(--radius-sm);
+  --tv-font-family: var(--font-body);
+  --tv-font-family-mono: var(--font-mono);
+  --tv-space-1: var(--space-1);
+  --tv-space-2: var(--space-2);
+  --tv-space-3: var(--space-3);
+  --tv-space-4: var(--space-4);
+  --tv-space-5: var(--space-5);
+  --tv-space-6: var(--space-6);
+  --tv-space-8: var(--space-8);
+  --tv-space-10: var(--space-10);
+  --tv-radius-sm: var(--radius-sm);
+  --tv-radius-md: var(--radius-sm);
+  --tv-radius-lg: var(--radius-md);
+  --tv-radius-round: var(--radius-pill);
+  --tv-control-height: var(--control-h);
+  --tv-control-height-lg: var(--control-h-lg);
+  --tv-shadow-card: var(--shadow);
+  --tv-shadow-pop: 0 12px 32px rgba(15, 28, 36, 0.12);
+  --tv-shadow-raised: var(--shadow);
+  --tv-duration-fast: var(--dur-fast);
+  --tv-duration-base: var(--dur-base);
+  --tv-ease-out: var(--ease-out);
+  --tv-font-size-sm: var(--fs-sm);
+  --tv-font-size-md: var(--fs-md);
+  --tv-font-size-body: var(--fs-body);
+  --tv-font-size-lg: var(--fs-lg);
+  --tv-font-size-xl: var(--fs-xl);
+  --tv-font-size-xxl: var(--fs-xxl);
+  --tv-font-weight-medium: var(--fw-medium);
+  --tv-font-weight-semibold: var(--fw-semibold);
+  --tv-line-height-tight: var(--lh-tight);
+  --tv-line-height-base: var(--lh-base);
+  --tv-color-focus-ring: rgba(15, 118, 110, 0.22);
+  --tv-color-border: var(--line);
+  --tv-color-border-soft: var(--line-soft);
+  --tv-color-bg-header: var(--surface-2);
+  --tv-color-bg-disabled: var(--line-soft);
+  --tv-color-text-disabled: #9aa8b2;
+  --tv-color-text-placeholder: var(--ink-3);
+  --tv-color-text-on-brand: #fff;
+  --tv-color-mask-light: rgba(255, 255, 255, 0.66);
+  --tv-base-color-brand-1: var(--brand-soft);
+  --tv-base-color-brand-2: #99f6e4;
+  --tv-base-color-brand-3: #5eead4;
+  --tv-base-color-brand-6: var(--brand);
+  --tv-base-color-brand-7: var(--brand-active);
+  --tv-base-color-common-2: var(--surface-2);
+  --tv-base-color-common-3: #eef3f6;
+  --tv-base-color-common-4: var(--line-soft);
+  --tv-base-color-common-5: #dce4ea;
+  --tv-base-color-common-8: var(--ink-3);
+  --tv-base-color-error-1: var(--danger-soft);
+  --tv-base-color-error-3: #fca5a5;
+  --tv-base-color-error-6: var(--danger);
+  --tv-base-color-error-7: #b91c1c;
+  --tv-base-color-warning-1: var(--warn-soft);
+  --tv-base-color-warning-3: #fdba74;
+  --tv-base-color-warning-7: var(--warn);
+  --tv-base-color-success-1: var(--ok-soft);
+  --tv-base-color-success-3: #86efac;
+  --tv-base-color-success-6: var(--ok);
+  --tv-base-color-success-7: #166534;
+  --tv-color-icon: var(--ink-3);
+  --tv-radius-xs: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root,
+  :host {
+    --dur-fast: 0ms;
+    --dur-base: 0ms;
+    --tv-duration-fast: 0ms;
+    --tv-duration-base: 0ms;
+  }
+}

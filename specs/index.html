@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>智能日报生成器 · 原型入口</title>
+  <link rel="stylesheet" href="assets/tokens.css">
+  <link rel="stylesheet" href="assets/prototype.css">
+</head>
+<body data-page="hub">
+  <div class="shell">
+    <div id="appShell"></div>
+
+    <div class="page-head">
+      <div>
+        <h1 class="page-head__title">高保真可交互原型</h1>
+        <p class="page-head__desc">
+          对齐后端采集 / 生成 / 存储 / 推送能力。主路径：浏览列表 → 打开详情 → 生成日报 → 返回列表。
+          字段与缺口见 <a href="UI_SPEC.md">UI_SPEC.md</a>，视觉见 <a href="DESIGN-SYSTEM.md">DESIGN-SYSTEM.md</a>。
+        </p>
+      </div>
+    </div>
+
+    <div class="hub-grid">
+      <a class="hub-card" href="report-list.html">
+        <span class="hub-card__index">1</span>
+        <span class="hub-card__title">日报列表</span>
+        <span class="hub-card__desc">筛选、分页、空态 / 加载 / 错误 / 无权限演示。对应 ReportStorage.list_reports。</span>
+      </a>
+      <a class="hub-card" href="report-detail.html">
+        <span class="hub-card__index">2</span>
+        <span class="hub-card__title">日报详情</span>
+        <span class="hub-card__desc">采集明细（Commit / Task / Message）+ Markdown 成品；复制、导出、推送确认、删除。</span>
+      </a>
+      <a class="hub-card" href="report-generate.html">
+        <span class="hub-card__index">3</span>
+        <span class="hub-card__title">生成日报</span>
+        <span class="hub-card__desc">创建表单。对接现网 POST /api/report（date、member）；可切换真实后端联调。</span>
+      </a>
+    </div>
+
+    <section class="panel" style="padding:20px 24px">
+      <h2 style="font-family:var(--font-display);font-size:18px;margin-bottom:8px">交付物</h2>
+      <ul style="margin:0;padding-left:1.2em;color:var(--ink-2);font-size:14px;line-height:1.8">
+        <li><code>DESIGN-SYSTEM.md</code> — 色板 / 字体 / 间距 / 组件</li>
+        <li><code>UI_SPEC.md</code> — 页面清单、字段↔API、缺口</li>
+        <li><code>report-*.html</code> + <code>assets/prototype.*</code> — 可预览源码</li>
+        <li>旧版 <a href="components.html">components.html</a> 组件清单可作对照（视觉已迭代）</li>
+      </ul>
+    </section>
+  </div>
+
+  <script src="assets/mock-data.js"></script>
+  <script src="assets/prototype.js"></script>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>日报列表 · 智能日报生成器</title>
+  <link rel="stylesheet" href="assets/tokens.css">
+  <link rel="stylesheet" href="assets/prototype.css">
+</head>
+<body data-page="list">
+  <div class="shell">
+    <div id="appShell"></div>
+
+    <div class="page-head">
+      <div>
+        <!-- 主任务：查日报历史 -->
+        <h1 class="page-head__title">日报列表</h1>
+        <p class="page-head__desc">
+          字段对齐 <code>DailyReportRecord</code>（id / report_date / team_name / generated_at / markdown）。
+          服务端筛选与分页 offset <span class="gap-tag">需后端新增</span>
+        </p>
+      </div>
+      <div class="page-head__actions">
+        <a class="btn btn--primary" href="report-generate.html">生成日报</a>
+      </div>
+    </div>
+
+    <div id="errorBox" class="alerts" hidden></div>
+
+    <section class="panel" aria-label="筛选与列表">
+      <!-- 演示态工具条：评审用，非产品功能 -->
+      <div class="demo-toolbar">
+        <strong>演示态</strong>
+        <button type="button" class="btn btn--ghost" data-demo-state="ok">正常</button>
+        <button type="button" class="btn btn--ghost" data-demo-state="empty">空数据</button>
+        <button type="button" class="btn btn--ghost" data-demo-state="error">错误 500</button>
+        <button type="button" class="btn btn--ghost" data-demo-state="forbidden">无权限</button>
+      </div>
+
+      <div class="filterbar">
+        <!-- data-field 保留技术名；文案用中文 -->
+        <div class="field field--sm">
+          <label class="field__label" for="filterDate">日期</label>
+          <input id="filterDate" type="date" data-field="report_date" />
+        </div>
+        <div class="field field--md">
+          <label class="field__label" for="filterTeam">团队</label>
+          <input id="filterTeam" type="text" placeholder="如：研发团队" data-field="team_name" />
+        </div>
+        <button type="button" class="btn btn--default" id="btnQuery">查询</button>
+        <button type="button" class="btn btn--ghost" id="btnReset">重置</button>
+        <div class="filterbar__meta">对应 list_reports(limit)；筛选为客户端模拟</div>
+      </div>
+
+      <!-- 加载中：骨架 -->
+      <div id="loadingState" class="skeleton-rows" hidden>
+        <div class="skeleton-row"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
+        <div class="skeleton-row"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
+        <div class="skeleton-row"><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div></div>
+      </div>
+
+      <!-- 空态 -->
+      <div id="emptyState" class="state" hidden>
+        <div class="state__art" aria-hidden="true">
+          <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+        </div>
+        <div class="state__title">暂无日报</div>
+        <p class="state__desc">选择日期生成第一份日报，或放宽筛选条件后再查询。</p>
+        <div class="state__actions">
+          <a class="btn btn--primary" href="report-generate.html">去生成</a>
+        </div>
+      </div>
+
+      <div id="tablePanel" hidden>
+        <div class="table-wrap">
+          <table class="data">
+            <thead>
+              <tr>
+                <th data-field="id">编号</th>
+                <th data-field="report_date">日期</th>
+                <th data-field="team_name">团队</th>
+                <th data-field="generated_at">生成于</th>
+                <th>摘要</th>
+                <th>状态</th>
+              </tr>
+            </thead>
+            <tbody id="reportTbody"></tbody>
+          </table>
+        </div>
+        <div class="pager">
+          <span id="pagerInfo">共 — 条</span>
+          <div class="pager__controls">
+            <button type="button" class="btn btn--default" id="btnPrev">上一页</button>
+            <button type="button" class="btn btn--default" id="btnNext">下一页</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="assets/mock-data.js"></script>
+  <script src="assets/prototype.js"></script>
+</body>
+</html>

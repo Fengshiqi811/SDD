@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>智能日报生成器 · OpenDesign 组件清单</title>
+<style>
+/* OD-LAYOUT-PRIMITIVES v1 — structure only: display, flex/grid, overflow, wrapping, ratio. */
+@layer od-layout {
+  :where(.od-stack,.od-row,.od-row-top,.od-cluster,.od-grid,.od-field,.od-stat,.od-cell,.od-tile) > :where(*) { min-width: 0; }
+  .od-stack   { display: flex; flex-direction: column; gap: var(--od-gap, 8px); }
+  .od-row     { display: flex; align-items: center; gap: var(--od-gap, 8px); }
+  .od-row-top { display: flex; align-items: flex-start; gap: var(--od-gap, 8px); }
+  .od-cluster { display: flex; flex-wrap: wrap; align-items: center; gap: var(--od-gap, 8px); }
+  .od-grid    { display: grid; gap: var(--od-gap, 12px); grid-template-columns: repeat(var(--od-cols, 3), minmax(0, 1fr)); }
+  .od-stat, .od-field, .od-cell { display: grid; gap: var(--od-gap, 2px); }
+  :where(.od-stat,.od-field,.od-cell) > :where(*) { display: block; }
+  .od-tile { display: grid; grid-template-rows: auto 1fr; }
+  :where(.od-tile) > :where(*) { display: block; }
+  .od-media { display: block; width: 100%; height: auto; aspect-ratio: var(--od-ratio, auto); }
+  .od-media-cover { object-fit: cover; }
+  .od-truncate { display: block; max-width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .od-clamp-2, .od-clamp-3 { display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+  .od-clamp-2 { -webkit-line-clamp: 2; }
+  .od-clamp-3 { -webkit-line-clamp: 3; }
+  .od-nowrap  { white-space: nowrap; }
+  .od-keep    { word-break: keep-all; overflow-wrap: anywhere; }
+  .od-screen { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; height: 100%; }
+  .od-scroll { overflow-y: auto; overscroll-behavior: contain; min-height: 0; }
+  .od-rail { display: flex; gap: var(--od-gap, 8px); overflow-x: auto; scrollbar-width: none; padding-inline: var(--od-rail-pad, 16px); }
+  .od-rail::-webkit-scrollbar { display: none; }
+  :where(.od-rail) > :where(*) { flex: none; }
+  .od-spacer { flex: none; visibility: hidden; pointer-events: none; }
+  .od-touch  { min-width: 44px; min-height: 44px; }
+}
+</style>
+<link rel="stylesheet" href="assets/tokens.css">
+<link rel="stylesheet" href="assets/app.css">
+</head>
+<body data-page="components">
+  <div class="page-doc">
+
+    <header class="doc-hero">
+      <h1>OpenDesign 组件清单</h1>
+      <p>「智能日报生成器」使用的全部 UI 组件，均按 OpenDesign（TinyVue）主题体系呈现：颜色、尺寸、圆角、间距、动效统一消费 <code class="mono">--tv-*</code> 设计令牌，无组件级硬编码样式。以下为各组件在日报页面中的形态与状态变体。</p>
+    </header>
+
+    <nav class="doc-nav" aria-label="组件目录">
+      <a href="#c-datepicker">DatePicker 日期选择器</a>
+      <a href="#c-select">Select 成员多选</a>
+      <a href="#c-button">Button 按钮组</a>
+      <a href="#c-card">Card 数据卡片</a>
+      <a href="#c-table">Table 原始数据表格</a>
+      <a href="#c-alert">Alert 提示</a>
+      <a href="#c-loading">Loading 加载</a>
+      <a href="#c-markdown">Markdown 预览面板</a>
+      <a href="#c-states">页面状态规范</a>
+    </nav>
+
+    <!-- 1. DatePicker -->
+    <section class="spec-card" id="c-datepicker">
+      <div class="spec-card__head">
+        <span class="spec-card__index">1</span>
+        <span class="spec-card__name">DatePicker 日期选择器<code class="mono">tv-date-picker</code></span>
+      </div>
+      <div class="spec-card__body">
+        <div class="spec-row">
+          <span class="spec-row__label">关闭态 / 交互可用（点击或回车展开日历）</span>
+          <div class="spec-row__demo"><div id="demoDate" style="width:220px"></div></div>
+        </div>
+        <div class="spec-row">
+          <span class="spec-row__label">展开态（日历面板，含今天标记与选中态）</span>
+          <div class="spec-row__demo">
+            <div class="popover" style="position:static">
+              <div class="calendar">
+                <div class="calendar__head">
+                  <button type="button" class="calendar__nav" aria-label="上一个月"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button>
+                  <span class="calendar__title">2026 年 10 月</span>
+                  <button type="button" class="calendar__nav" aria-label="下一个月"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button>
+                </div>
+                <div class="calendar__grid">
+                  <span class="calendar__dow">日</span><span class="calendar__dow">一</span><span class="calendar__dow">二</span><span class="calendar__dow">三</span><span class="calendar__dow">四</span><span class="calendar__dow">五</span><span class="calendar__dow">六</span>
+                  <button type="button" class="calendar__day calendar__day--muted">28</button><button type="button" class="calendar__day calendar__day--muted">29</button><button type="button" class="calendar__day calendar__day--muted">30</button><button type="button" class="calendar__day">1</button><button type="button" class="calendar__day">2</button><button type="button" class="calendar__day">3</button><button type="button" class="calendar__day">4</button>
+                  <button type="button" class="calendar__day">5</button><button type="button" class="calendar__day">6</button><button type="button" class="calendar__day">7</button><button type="button" class="calendar__day calendar__day--today" aria-selected="true">8</button><button type="button" class="calendar__day">9</button><button type="button" class="calendar__day">10</button><button type="button" class="calendar__day">11</button>
+                  <button type="button" class="calendar__day">12</button><button type="button" class="calendar__day">13</button><button type="button" class="calendar__day">14</button><button type="button" class="calendar__day">15</button><button type="button" class="calendar__day">16</button><button type="button" class="calendar__day">17</button><button type="button" class="calendar__day">18</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="spec-row">
+          <span class="spec-row__label">禁用态</span>
+          <div class="spec-row__demo">
+            <div class="select__control" aria-disabled="true" style="width:220px;opacity:.6;cursor:not-allowed">
+              <span class="select__top"><span style="display:flex;color:var(--tv-color-icon)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></span>
+              <span class="select__value"><span class="mono">2026-10-08</span></span></span>
+              <span class="select__chevron"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Select -->
+    <section class="spec-card" id="c-select">
+      <div class="spec-card__head">
+        <span class="spec-card__index">2</span>
+        <span class="spec-card__name">Select 成员多选下拉框<code class="mono">tv-select[multiple]</code></span>
+      </div>
+      <div class="spec-card__body">
+        <div class="spec-row">
+          <span class="spec-row__label">已选标签态 / 交互可用（点击展开多选项）</span>
+          <div class="spec-row__demo"><div id="demoSelect" style="width:320px"></div></div>
+        </div>
+        <div class="spec-row">
+          <span class="spec-row__label">展开态（全选 / 选项复选，含头像与角色副信息）</span>
+          <div class="spec-row__demo">
+            <div class="popover" style="position:static">
+              <div class="options">
+                <div class="options__all"><span>已选 2 / 4</span><button type="button" class="btn btn--text btn--sm">全选</button></div>
+                <div class="check" role="option" aria-checked="true"><span class="check__box"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="check__avatar">张</span><span class="od-stack" style="gap:0"><span class="check__name">张伟</span><span class="check__role">前端</span></span></div>
+                <div class="check" role="option" aria-checked="true"><span class="check__box"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="check__avatar">李</span><span class="od-stack" style="gap:0"><span class="check__name">李娜</span><span class="check__role">后端</span></span></div>
+                <div class="check" role="option" aria-checked="false"><span class="check__box"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="check__avatar">王</span><span class="od-stack" style="gap:0"><span class="check__name">王强</span><span class="check__role">测试</span></span></div>
+                <div class="check" role="option" aria-checked="false"><span class="check__box"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><span class="check__avatar">陈</span><span class="od-stack" style="gap:0"><span class="check__name">陈静</span><span class="check__role">产品</span></span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="spec-row">
+          <span class="spec-row__label">空选占位态</span>
+          <div class="spec-row__demo">
+            <div class="select__control" style="width:320px">
+              <span class="select__top"><span class="select__value"><span class="select__placeholder">全部成员</span></span></span>
+              <span class="select__chevron"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Button -->
+    <section class="spec-card" id="c-button">
+      <div class="spec-card__head">
+        <span class="spec-card__index">3</span>
+        <span class="spec-card__name">Button 操作按钮组<code class="mono">tv-button</code></span>
+      </div>
+      <div class="spec-card__body">
+        <div class="spec-row">
+          <span class="spec-row__label">类型（主要 / 次要 / 文字 / 危险）</span>
+          <div class="spec-row__demo">
+            <button class="btn btn--primary" type="button">导出 HTML</button>
+            <button class="btn btn--default" type="button">刷新</button>
+            <button class="btn btn--text" type="button">取消</button>
+            <button class="btn btn--danger" type="button">删除记录</button>
+          </div>
+        </div>
+        <div class="spec-row">
+          <span class="spec-row__label">状态（默认 / 禁用 / 加载中）</span>
+          <div class="spec-row__demo">
+            <button class="btn btn--primary" type="button">默认</button>
+            <button class="btn btn--primary" type="button" disabled>禁用</button>
+            <button class="btn btn--primary btn--loading" type="button"><span class="btn__spin"></span>加载中</button>
+          </div>
+        </div>
+        <div class="spec-row">
+          <span class="spec-row__label">尺寸（小 / 中 / 大）与图标按钮</span>
+          <div class="spec-row__demo">
+            <button class="btn btn--default btn--sm" type="button">小尺寸</button>
+            <button class="btn btn--default" type="button">中尺寸</button>
+            <button class="btn btn--default btn--lg" type="button">大尺寸</button>
+            <button class="btn btn--default" type="button" aria-label="刷新">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Card -->
+    <section class="spec-card" id="c-card">
+      <div class="spec-card__head">
+        <span class="spec-card__index">4</span>
+        <span class="spec-card__name">Card 数据卡片容器<code class="mono">tv-card</code></span>
+      </div>
+      <div class="spec-card__body">
+        <div class="spec-row">
+          <span class="spec-row__label">头部 + 内容 + 底部操作</span>
+          <div class="spec-row__demo">
+            <div class="demo-card">
+              <div class="demo-card__head">
+                <span class="pane__title"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>今日概览</span>
+              </div>
+              <div class="demo-card__body">采集 16 条记录，覆盖 4 位成员、3 个数据源。</div>
+              <div class="demo-card__foot"><button class="btn btn--text btn--sm" type="button">查看明细</button><button class="btn btn--primary btn--sm" type="button">导出</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Table -->
+    <section class="spec-card" id="c-table">
+      <div class="spec-card__head">
+        <span class="spec-card__index">5</span>
+        <span class="spec-card__name">Table 原始数据表格<code class="mono">tv-table</code></span>
+      </div>
+      <div class="spec-card__body">
+        <div class="spec-row">
+          <span class="spec-row__label">数据态（表头吸附、行悬浮、单元格主次信息分层）</span>
+          <div class="spec-row__demo" style="display:block">
+            <div class="demo-surface" style="padding:0;overflow:hidden">
+              <table class="od-table">
+                <thead><tr><th style="width:46%">提交内容</th><th>仓库 / 分支</th><th>成员</th><th>时间</th></tr></thead>
+                <tbody>
+                  <tr><td><div class="cell-primary"><span class="cell-primary__main">fix(date-picker): 修复跨月切换后面板不刷新的问题</span><span class="cell-sub"><span class="sha">a1b2c3d</span> +42 / -18</span></div></td><td><span class="repo">opentiny/tiny-vue</span><div class="cell-sub">feat/date-picker</div></td><td><span class="person"><span class="person__avatar">张</span>张伟</span></td><td class="cell-sub mono od-nowrap">09:24</td></tr>
+                  <tr><td><div class="cell-primary"><span class="cell-primary__main">perf(order): 退款查询接口合并两次数据库往返</span><span class="cell-sub"><span class="sha">c3d4e5f</span> +128 / -64</span></div></td><td><span class="repo">team/refund-service</span><div class="cell-sub">main</div></td><td><span class="person"><span class="person__avatar">李</span>李娜</span></td><td class="cell-sub mono od-nowrap">10:15</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="spec-row">
+          <span class="spec-row__label">加载态（骨架屏，预留行高避免跳动）</span>
+          <div class="spec-row__demo" style="display:block">
+            <div class="demo-surface" style="padding:0;overflow:hidden">
+              <div class="skeleton-row"><span class="skeleton"></span><span class="skeleton"></span><span class="skeleton"></span></div>
+              <div class="skeleton-row"><span class="skeleton"></span><span class="skeleton"></span><span class="skeleton"></span></div>
+              <div class="skeleton-row" style="border-bottom:none"><span class="skeleton"></span><span class="skeleton"></span><span class="skeleton"></span></div>
+            </div>
+          </div>
+        </div>
+        <div class="spec-row">
+          <span class="spec-row__label">空数据态</span>
+          <div class="spec-row__demo" style="display:block">
+            <div class="demo-surface" style="padding:0;overflow:hidden">
+              <table class="od-table"><thead><tr><th>提交内容</th><th>仓库 / 分支</th><th>成员</th><th>时间</th></tr></thead></table>
+              <div class="empty-cell">当前筛选条件下暂无记录</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. Alert -->
+    <section class="spec-card" id="c-alert">
+      <div class="spec-card__head">
+        <span class="spec-card__index">6</span>
+        <span class="spec-card__name">Alert 错误 / 空状态提示<code class="mono">tv-alert</code></span>
+      </div>
+      <div class="spec-card__body">
+        <div class="spec-row">
+          <span class="spec-row__label">四种语义（信息 / 成功 / 警告 / 错误），均带图标与关闭入口</span>
+          <div class="spec-row__demo" style="display:grid;gap:8px;width:100%">
+            <div class="alert alert--info" role="alert"><span class="alert__icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg></span><div class="alert__body"><div class="alert__title">数据源采集完成</div><div class="alert__desc">今日共计采集 16 条记录，可预览并导出日报。</div></div><button class="alert__close" aria-label="关闭提示"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+            <div class="alert alert--success" role="alert"><span class="alert__icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m8.5 12.5 2.5 2.5 4.5-5"/></svg></span><div class="alert__body"><div class="alert__title">导出成功</div><div class="alert__desc">已生成完整 HTML 日报文件。</div></div><button class="alert__close" aria-label="关闭提示"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+            <div class="alert alert--warning" role="alert"><span class="alert__icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg></span><div class="alert__body"><div class="alert__title">部分数据源获取失败</div><div class="alert__desc">lark_msg：飞书消息接口响应超时（&gt;5000ms）。其余数据已正常展示，可点击刷新重试。</div></div><button class="alert__close" aria-label="关闭提示"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+            <div class="alert alert--error" role="alert"><span class="alert__icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6M9 9l6 6"/></svg></span><div class="alert__body"><div class="alert__title">数据加载失败</div><div class="alert__desc">请求超时或服务返回 500，请重试。</div></div><button class="alert__close" aria-label="关闭提示"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. Loading -->
+    <section class="spec-card" id="c-loading">
+      <div class="spec-card__head">
+        <span class="spec-card__index">7</span>
+        <span class="spec-card__name">Loading 全局加载状态<code class="mono">tv-loading</code></span>
+      </div>
+      <div class="spec-card__body">
+        <div class="spec-row">
+          <span class="spec-row__label">旋转指示器 / 区域蒙层（切换日期或成员时自动弹出）</span>
+          <div class="spec-row__demo">
+            <span class="spinner" role="progressbar" aria-label="加载中"></span>
+            <div class="loading-box" style="box-shadow:none;border:1px solid var(--app-border)"><span class="spinner"></span><span>正在加载日报数据…</span></div>
+            <button class="btn btn--default" type="button" data-toast="演示：重新加载中…" data-toast-type="info">触发加载提示</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. Markdown -->
+    <section class="spec-card" id="c-markdown">
+      <div class="spec-card__head">
+        <span class="spec-card__index">8</span>
+        <span class="spec-card__name">Markdown 预览面板<code class="mono">tv-markdown</code></span>
+      </div>
+      <div class="spec-card__body">
+        <div class="spec-row">
+          <span class="spec-row__label">Markdown / HTML 双模式渲染结果（标题、引用、列表、行内代码）</span>
+          <div class="spec-row__demo" style="display:block">
+            <div class="demo-surface">
+              <div class="markdown">
+                <h1>智能日报 · 2026-10-08</h1>
+                <blockquote>采集时间 18:30 · 覆盖成员 4 人 · 数据源：GitHub / 飞书任务 / 飞书消息</blockquote>
+                <h2>一、今日概览</h2>
+                <ul>
+                  <li>代码提交 <strong>6</strong> 次，覆盖 3 个仓库</li>
+                  <li>任务变更 <strong>5</strong> 项（完成 2 · 进行中 2 · 待处理 1）</li>
+                </ul>
+                <h2>二、代码提交（GitHub）</h2>
+                <ul>
+                  <li><code>a1b2c3d</code> 修复跨月切换后面板不刷新的问题 — 张伟</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9. 页面状态规范 -->
+    <section class="spec-card" id="c-states">
+      <div class="spec-card__head">
+        <span class="spec-card__index">9</span>
+        <span class="spec-card__name">页面状态规范（三种固定状态）</span>
+      </div>
+      <div class="spec-card__body">
+        <div class="state-grid">
+          <div class="state-box">
+            <div class="state-box__cap">正常状态 · 左右两区完整数据</div>
+            <div class="state-box__body">
+              <div class="demo-surface" style="margin:12px">
+                <div class="status status--done" style="margin-bottom:8px"><span class="status__dot"></span>已采集 16 条</div>
+                <div class="od-stack" style="--od-gap:8px">
+                  <div class="skeleton-row" style="border:none;padding:0"><span class="skeleton" style="width:100%"></span></div>
+                  <div class="skeleton-row" style="border:none;padding:0"><span class="skeleton" style="width:100%"></span></div>
+                  <div class="skeleton-row" style="border:none;padding:0"><span class="skeleton" style="width:100%"></span></div>
+                </div>
+                <p class="cell-sub" style="margin-top:12px">左侧展示 GitHub 提交 / 飞书任务 / 飞书消息明细，右侧渲染完整 Markdown 日报。</p>
+              </div>
+            </div>
+          </div>
+          <div class="state-box">
+            <div class="state-box__cap">空数据状态 · 无任何采集记录</div>
+            <div class="state-box__body">
+              <div class="state">
+                <div class="state__art"><svg viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></div>
+                <div class="state__title">今日无记录</div>
+                <p class="state__desc">所选日期与成员范围内没有任何采集记录，调整筛选条件后会自动重新获取。</p>
+              </div>
+            </div>
+          </div>
+          <div class="state-box">
+            <div class="state-box__cap">异常降级状态 · 部分数据源失败，页面不崩溃</div>
+            <div class="state-box__body">
+              <div style="padding:12px">
+                <div class="alert alert--warning" style="margin-bottom:12px" role="alert"><span class="alert__icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4M12 17h.01"/></svg></span><div class="alert__body"><div class="alert__title">部分数据源获取失败</div><div class="alert__desc">lark_msg 获取失败，其余数据正常展示。</div></div></div>
+                <div class="od-stack" style="--od-gap:8px">
+                  <div class="skeleton-row" style="border:none;padding:0"><span class="skeleton" style="width:100%"></span></div>
+                  <div class="skeleton-row" style="border:none;padding:0"><span class="skeleton" style="width:100%"></span></div>
+                </div>
+                <div class="state state--error" style="min-height:auto;padding:16px 0 0">
+                  <div class="state__title" style="font-size:16px">数据加载失败，请重试</div>
+                  <div class="state__actions"><button class="btn btn--primary btn--sm" type="button" data-retry>重新加载</button></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="toast-host" id="toastHost" aria-live="polite"></div>
+  <script src="assets/app.js"></script>
+</body>
+</html>
