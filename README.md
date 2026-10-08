@@ -27,4 +27,5 @@ tests/       # 测试
 2. 启动前端：npm install 、npm run dev （端口5173）
 3. 浏览器访问 http://localhost:5173
 4. 填写日期、姓名，点击刷新生成日报
+![项目网页截图](71d1b156b95eea755bafd6524f82ea42.png)
 
