@@ -177,6 +177,11 @@ ol {
   max-width: 100%;
 }
 
+.field--email {
+  width: 320px;
+  max-width: 100%;
+}
+
 .field__label {
   font-size: var(--tv-font-size-sm);
   font-weight: var(--tv-font-weight-medium);
@@ -1471,7 +1476,8 @@ table.od-table {
     width: 100%;
   }
   .field--date,
-  .field--members {
+  .field--members,
+  .field--email {
     width: 100%;
   }
   .page-doc {

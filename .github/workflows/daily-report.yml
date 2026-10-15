@@ -1,0 +1,47 @@
+name: Daily Report
+
+on:
+  schedule:
+    # UTC 13:00 = Asia/Shanghai 21:00
+    - cron: "0 13 * * *"
+  workflow_dispatch:
+
+jobs:
+  send-report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -e .
+
+      - name: Generate and send report
+        env:
+          REPORT_TEAM_NAME: 智能日报
+          REPORT_GRADE: 研一
+          REPORT_MEMBER_NAME: 冯诗祺
+          REPORT_MEMBER_GITHUB: Fengshiqi811
+          REPORT_MEMBER_LARK: ${{ secrets.REPORT_MEMBER_LARK }}
+          REPORT_SCHEDULE_TO: ${{ secrets.REPORT_SCHEDULE_TO }}
+          GITHUB_REPOS: Fengshiqi811/SDD,Fengshiqi811/opendesign-PageDailyReport,Fengshiqi811/ai-engineering-hub
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_ACTIVITY_ENABLED: "true"
+          LARK_APP_ID: ${{ secrets.LARK_APP_ID }}
+          LARK_APP_SECRET: ${{ secrets.LARK_APP_SECRET }}
+          LARK_PROJECT_ID: ${{ secrets.LARK_PROJECT_ID }}
+          LARK_CHAT_ID: ${{ secrets.LARK_CHAT_ID }}
+          LARK_KEYWORDS: 进度,阻塞,评审,完成,会议,测试
+          MAIL_USER: ${{ secrets.MAIL_USER }}
+          MAIL_AUTH_CODE: ${{ secrets.MAIL_AUTH_CODE }}
+          SMTP_HOST: smtp.qq.com
+          SMTP_PORT: "465"
+          SMTP_USE_SSL: "true"
+        run: python main.py --send-now

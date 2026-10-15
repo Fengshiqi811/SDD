@@ -25,14 +25,25 @@ github:
 
 # 飞书采集配置
 lark:
+  app_id: ""
+  app_secret: ""
   project_id: "your-project-id"
   chat_id: "your-chat-id"
   keywords:
     - "进度"
     - "阻塞"
     - "评审"
-  # app_id / app_secret 通过环境变量注入：
+  # app_id / app_secret 也可以不写在此文件，改用环境变量注入：
   # LARK_APP_ID, LARK_APP_SECRET
+  # 成员身份通过 members[].lark 匹配。也可用环境变量覆盖：
+  # REPORT_MEMBER_NAME, REPORT_MEMBER_LARK, LARK_MEMBER_ID
+
+# 无 config.yaml 时，网页接口也可以完全通过环境变量构建配置：
+# REPORT_TEAM_NAME, REPORT_MEMBER_NAME, REPORT_MEMBER_GITHUB
+# GITHUB_REPOS="org/repo-a,org/repo-b"
+# LARK_PROJECT_ID, LARK_CHAT_ID, LARK_KEYWORDS="进度,阻塞,评审"
+# 个人任务清单需要通过 OAuth 授权一次：
+# FEISHU_OAUTH_REDIRECT_URI="http://127.0.0.1:5000/oauth/callback"
 
 # 推送配置
 notifier:
@@ -41,6 +52,7 @@ notifier:
       - "leader@company.com"
     # SMTP 凭据通过环境变量注入：
     # SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD
+    # 兼容 QQ 邮箱配置：MAIL_USER, MAIL_AUTH_CODE, SMTP_USE_SSL=true
   lark_bot:
     # webhook URL 通过环境变量 LARK_BOT_WEBHOOK 注入
     chat_id: "your-notify-chat-id"

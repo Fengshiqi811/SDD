@@ -9,6 +9,7 @@ from unittest.mock import MagicMock
 import httpx
 
 from collector.lark_msg import MessageRecord, collect
+from collector.lark_msg import _flatten_message_text
 
 SINCE = datetime(2026, 9, 27, 0, 0, 0, tzinfo=timezone.utc)
 UNTIL = datetime(2026, 9, 27, 18, 0, 0, tzinfo=timezone.utc)
@@ -218,3 +219,17 @@ def test_timeout_retries_three_times_then_returns_empty(caplog):
     assert client.request.call_count == 3
     assert sleeps == [5.0, 5.0]
     assert any("飞书消息采集失败" in message for message in caplog.messages)
+
+
+def test_flatten_message_text_extracts_structured_summary():
+    payload = {
+        "task_id": "edc11772-a603-4167-8d05-7386404f4b29",
+        "summary": {
+            "title": "",
+            "content": [
+                [{"tag": "text", "text": "群任务（日报测试）", "style": []}]
+            ],
+        },
+        "due_time": "1791676800000",
+    }
+    assert _flatten_message_text(payload) == "群任务（日报测试）"

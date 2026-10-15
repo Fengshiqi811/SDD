@@ -30,6 +30,8 @@ class LarkConfig:
     project_id: str
     chat_id: str
     keywords: list[str]
+    app_id: str = ""
+    app_secret: str = ""
 
 
 @dataclass(frozen=True)
@@ -70,9 +72,25 @@ def _require_non_empty_str(value: Any, field_path: str) -> str:
     return value
 
 
+def _optional_non_empty_str(value: Any, field_path: str) -> str:
+    if value is None:
+        return ""
+    if not isinstance(value, str):
+        raise ConfigError(f"配置字段无效（需为字符串）: {field_path}")
+    return value.strip()
+
+
 def _require_list(value: Any, field_path: str) -> list[Any]:
     if not isinstance(value, list) or len(value) == 0:
         raise ConfigError(f"配置字段无效（需为非空列表）: {field_path}")
+    return value
+
+
+def _optional_list(value: Any, field_path: str) -> list[Any]:
+    if value is None:
+        return []
+    if not isinstance(value, list):
+        raise ConfigError(f"配置字段无效（需为列表）: {field_path}")
     return value
 
 
@@ -102,18 +120,24 @@ def validate_config(data: dict[str, Any]) -> AppConfig:
     github_raw = _require(data, "github", "")
     if not isinstance(github_raw, dict):
         raise ConfigError("配置字段无效: github 应为对象")
-    repos = _require_list(_require(github_raw, "repos", "github"), "github.repos")
+    repos = _optional_list(github_raw.get("repos"), "github.repos")
     for i, repo in enumerate(repos):
         _require_non_empty_str(repo, f"github.repos[{i}]")
 
     lark_raw = _require(data, "lark", "")
     if not isinstance(lark_raw, dict):
         raise ConfigError("配置字段无效: lark 应为对象")
-    project_id = _require_non_empty_str(_require(lark_raw, "project_id", "lark"), "lark.project_id")
-    chat_id = _require_non_empty_str(_require(lark_raw, "chat_id", "lark"), "lark.chat_id")
-    keywords = _require_list(_require(lark_raw, "keywords", "lark"), "lark.keywords")
+    project_id = _optional_non_empty_str(lark_raw.get("project_id"), "lark.project_id")
+    chat_id = _optional_non_empty_str(lark_raw.get("chat_id"), "lark.chat_id")
+    if not project_id and not chat_id:
+        raise ConfigError("配置至少需要 lark.project_id 或 lark.chat_id")
+    keywords = _optional_list(lark_raw.get("keywords"), "lark.keywords")
+    if not keywords:
+        keywords = ["进度", "阻塞", "评审", "完成", "会议"]
     for i, keyword in enumerate(keywords):
         _require_non_empty_str(keyword, f"lark.keywords[{i}]")
+    app_id = _optional_non_empty_str(lark_raw.get("app_id"), "lark.app_id")
+    app_secret = _optional_non_empty_str(lark_raw.get("app_secret"), "lark.app_secret")
 
     notifier_raw = _require(data, "notifier", "")
     if not isinstance(notifier_raw, dict):
@@ -122,15 +146,15 @@ def validate_config(data: dict[str, Any]) -> AppConfig:
     email_raw = _require(notifier_raw, "email", "notifier")
     if not isinstance(email_raw, dict):
         raise ConfigError("配置字段无效: notifier.email 应为对象")
-    recipients = _require_list(_require(email_raw, "recipients", "notifier.email"), "notifier.email.recipients")
+    recipients = _optional_list(email_raw.get("recipients"), "notifier.email.recipients")
     for i, recipient in enumerate(recipients):
         _require_non_empty_str(recipient, f"notifier.email.recipients[{i}]")
 
     lark_bot_raw = _require(notifier_raw, "lark_bot", "notifier")
     if not isinstance(lark_bot_raw, dict):
         raise ConfigError("配置字段无效: notifier.lark_bot 应为对象")
-    bot_chat_id = _require_non_empty_str(
-        _require(lark_bot_raw, "chat_id", "notifier.lark_bot"),
+    bot_chat_id = _optional_non_empty_str(
+        lark_bot_raw.get("chat_id"),
         "notifier.lark_bot.chat_id",
     )
 
@@ -138,7 +162,13 @@ def validate_config(data: dict[str, Any]) -> AppConfig:
         team_name=team_name,
         members=members,
         github=GitHubConfig(repos=list(repos)),
-        lark=LarkConfig(project_id=project_id, chat_id=chat_id, keywords=list(keywords)),
+        lark=LarkConfig(
+            project_id=project_id,
+            chat_id=chat_id,
+            keywords=list(keywords),
+            app_id=app_id,
+            app_secret=app_secret,
+        ),
         notifier=NotifierConfig(
             email=EmailNotifierConfig(recipients=list(recipients)),
             lark_bot=LarkBotConfig(chat_id=bot_chat_id),

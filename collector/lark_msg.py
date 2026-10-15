@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import os
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime, timezone
 from typing import Any, Callable
 
@@ -37,6 +37,7 @@ class MessageRecord:
     content: str
     timestamp: datetime
     chat_name: str
+    sender_name: str = ""
 
 
 def collect(
@@ -53,6 +54,8 @@ def collect(
     retry_interval: float = DEFAULT_RETRY_INTERVAL,
     sleep_fn: Callable[[float], None] = time.sleep,
     sensitive_keywords: tuple[str, ...] = SENSITIVE_KEYWORDS,
+    sender_names: dict[str, str] | None = None,
+    resolve_chat_name: bool = False,
 ) -> CollectResult[MessageRecord]:
     """采集指定群消息，按关键词过滤并屏蔽敏感词。
 
@@ -96,6 +99,14 @@ def collect(
             )
             return CollectResult(success=False, records=[], error_message=str(exc))
 
+        chat_name = ""
+        if resolve_chat_name and chat_id:
+            chat_name = _fetch_chat_name(
+                client=http_client,
+                token=token,
+                chat_id=chat_id,
+            )
+
         records: list[MessageRecord] = []
         for item in items:
             record = _to_message_record(item, since=since, until=until)
@@ -105,11 +116,43 @@ def collect(
                 continue
             if _contains_sensitive(record.content, sensitive_keywords):
                 continue
-            records.append(record)
+            records.append(
+                replace(
+                    record,
+                    chat_name=chat_name or record.chat_name,
+                    sender_name=(sender_names or {}).get(record.sender, ""),
+                )
+            )
         return CollectResult(success=True, records=records)
     finally:
         if owns_client:
             http_client.close()
+
+
+def _fetch_chat_name(
+    *,
+    client: httpx.Client,
+    token: str,
+    chat_id: str,
+) -> str:
+    """读取群名称；失败时返回空字符串，调用方回退为原始 chat_id。"""
+    try:
+        response = _request_api(
+            client=client,
+            method="GET",
+            url=f"/open-apis/im/v1/chats/{chat_id}",
+            token=token,
+            params=None,
+            max_retries=1,
+            retry_interval=0,
+            sleep_fn=lambda _: None,
+        )
+        payload = response.json()
+        data = payload.get("data") if isinstance(payload, dict) else {}
+        name = data.get("name") if isinstance(data, dict) else ""
+        return str(name or "")
+    except Exception:
+        return ""
 
 
 class _CollectFailed(Exception):
@@ -357,11 +400,32 @@ def _extract_content(item: dict[str, Any]) -> str:
             # 飞书消息 body.content 可能是 JSON 字符串：{"text":"..."}
             try:
                 parsed = json.loads(raw)
-                if isinstance(parsed, dict) and parsed.get("text"):
-                    return str(parsed["text"])
+                flattened = _flatten_message_text(parsed)
+                if flattened:
+                    return flattened
             except json.JSONDecodeError:
                 pass
             return raw
+    return ""
+
+
+def _flatten_message_text(value: Any) -> str:
+    """把富文本/任务通知 JSON 展平为可读文本。"""
+    if isinstance(value, str):
+        return value.strip()
+    if isinstance(value, dict):
+        text = value.get("text")
+        if isinstance(text, str) and text.strip():
+            return text.strip()
+        for key in ("summary", "content", "title", "text"):
+            if key in value:
+                flattened = _flatten_message_text(value[key])
+                if flattened:
+                    return flattened
+        return ""
+    if isinstance(value, list):
+        parts = [part for part in (_flatten_message_text(item) for item in value) if part]
+        return "".join(parts)
     return ""
 
 

@@ -19,6 +19,7 @@ body {
 
 .field input[type="date"],
 .field input[type="text"],
+.field input[type="email"],
 .field input:not([type]) {
   display: block;
   width: 100%;
@@ -165,4 +166,106 @@ body {
   background: linear-gradient(160deg, #edf7df, #daf2bb);
   color: var(--tv-base-color-success-7);
   box-shadow: inset 0 0 0 1px var(--tv-base-color-success-3);
+}
+
+.insight-panel {
+  display: grid;
+  gap: var(--tv-space-4);
+}
+
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--tv-space-3);
+}
+
+.metric-card {
+  display: grid;
+  gap: 4px;
+  padding: var(--tv-space-3) var(--tv-space-4);
+  text-align: left;
+  border: 1px solid var(--app-border);
+  border-radius: var(--tv-radius-md);
+  background: var(--app-surface);
+  box-shadow: var(--tv-shadow-card);
+  transition: border-color var(--tv-duration-fast) var(--tv-ease-out),
+    box-shadow var(--tv-duration-fast) var(--tv-ease-out);
+}
+
+.metric-card:hover,
+.metric-card--active {
+  border-color: var(--app-primary);
+  box-shadow: var(--tv-shadow-raised);
+}
+
+.metric-card__label {
+  font-size: var(--tv-font-size-sm);
+  color: var(--app-text-2);
+}
+
+.metric-card__value {
+  font-size: 28px;
+  line-height: 1.1;
+  font-weight: var(--tv-font-weight-semibold);
+  color: var(--app-text);
+}
+
+.metric-card__delta {
+  font-size: var(--tv-font-size-sm);
+  color: var(--app-text-3);
+}
+
+.metric-card__delta--up {
+  color: var(--tv-base-color-success-7);
+}
+
+.metric-card__delta--down {
+  color: var(--tv-base-color-error-6);
+}
+
+.ai-summary,
+.metric-detail {
+  padding: var(--tv-space-4);
+  border: 1px solid var(--app-border);
+  border-radius: var(--tv-radius-md);
+  background: var(--tv-base-color-brand-1);
+}
+
+.ai-summary__title,
+.metric-detail__title {
+  margin-bottom: var(--tv-space-2);
+  font-size: var(--tv-font-size-md);
+  font-weight: var(--tv-font-weight-semibold);
+  color: var(--tv-base-color-brand-8);
+}
+
+.ai-summary__list,
+.metric-detail__list {
+  display: grid;
+  gap: 6px;
+  padding-left: 18px;
+  margin: 0;
+  color: var(--app-text-2);
+  font-size: var(--tv-font-size-sm);
+}
+
+.metric-detail__list li {
+  display: grid;
+  gap: 2px;
+}
+
+.metric-detail {
+  background: var(--tv-base-color-common-2);
+}
+
+@media (max-width: 900px) {
+  .metric-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .metric-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }

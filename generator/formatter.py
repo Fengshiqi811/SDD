@@ -2,12 +2,14 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+import os
+from dataclasses import dataclass, field
 from datetime import date, datetime
 
 from collector.github import CommitRecord
 from collector.lark_msg import MessageRecord
 from collector.lark_task import TaskRecord
+from generator.insights import build_insights
 from generator.template import markdown_to_html, render_markdown
 
 
@@ -35,15 +37,40 @@ class DailyReport:
     generated_at: datetime
     markdown: str
     html: str
+    insights: dict = field(default_factory=dict)
 
 
-def generate(members: list[MemberReport], date: date, team_name: str) -> DailyReport:
+def build_report_subject(report: DailyReport, *, grade: str | None = None) -> str:
+    """按“研一+姓名+日期+智能日报”生成邮件标题。"""
+    resolved_grade = (grade if grade is not None else os.getenv("REPORT_GRADE", "研一")).strip()
+    member_name = report.members[0].name if report.members else report.team_name
+    return f"{resolved_grade}{member_name}{report.date.isoformat()}智能日报"
+
+
+def generate(
+    members: list[MemberReport],
+    date: date,
+    team_name: str,
+    *,
+    previous_snapshot: dict | None = None,
+    trend: list[dict] | None = None,
+    sync: dict | None = None,
+    github_activity: dict | None = None,
+) -> DailyReport:
     """按「代码提交 → 任务进展 → 协作沟通」组织日报，输出 Markdown 与 HTML。"""
     view_members = [_to_view(member) for member in members]
+    insights = build_insights(
+        members,
+        previous_snapshot=previous_snapshot,
+        trend=trend,
+        sync=sync,
+        github_activity=github_activity,
+    )
     markdown = render_markdown(
         team_name=team_name,
         date=date.isoformat(),
         members=view_members,
+        insights=insights,
     )
     html = markdown_to_html(markdown)
     return DailyReport(
@@ -53,6 +80,7 @@ def generate(members: list[MemberReport], date: date, team_name: str) -> DailyRe
         generated_at=datetime.now(),
         markdown=markdown,
         html=html,
+        insights=insights,
     )
 
 

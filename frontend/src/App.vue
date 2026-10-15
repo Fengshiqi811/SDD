@@ -8,7 +8,7 @@
         </span>
         <div class="topbar__titles">
           <h1 class="topbar__title">智能日报生成器</h1>
-          <span class="topbar__sub">PageDailyReport · 采集明细 · 筛选 · 预览 · 导出</span>
+          <span class="topbar__sub">PageDailyReport · 采集明细 · 筛选 · 预览 · 导出 · 邮件发送</span>
         </div>
       </div>
       <span class="topbar__spacer"></span>
@@ -22,9 +22,14 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2"/></svg>
           复制 Markdown
         </button>
-        <button @click="handleExportHtml" class="btn btn--primary" type="button" :disabled="!reportContent">
+        <button @click="handleExportHtml" class="btn btn--default" type="button" :disabled="!reportContent">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M5 21h14"/></svg>
           导出 HTML
+        </button>
+        <button @click="handleSendReport" class="btn btn--primary" :class="{ 'btn--loading': sending }" type="button" :disabled="sending || loading">
+          <span v-if="sending" class="btn__spin" aria-hidden="true"></span>
+          <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+          {{ sending ? '生成并发送中...' : '生成并发送' }}
         </button>
       </div>
     </header>
@@ -39,6 +44,13 @@
         <span class="field__label">团队成员</span>
         <input v-model="memberName" type="text" placeholder="输入成员姓名" />
       </div>
+      <div class="field field--email">
+        <span class="field__label">老师邮箱<span class="req" aria-hidden="true">*</span><span class="visually-hidden">（必填）</span></span>
+        <input v-model="toEmail" type="email" placeholder="teacher@example.com" autocomplete="email" />
+      </div>
+      <button class="btn btn--default" type="button" @click="handleAuthorizeFeishu">
+        授权飞书任务
+      </button>
       <div class="filterbar__spacer"></div>
       <div class="filterbar__meta">
         <span class="status-chip" :class="statusChipClass">
@@ -55,7 +67,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5"/><path d="M12 16h.01"/></svg>
         </span>
         <div class="alert__body">
-          <div class="alert__title">数据加载失败</div>
+          <div class="alert__title">{{ errorTitle }}</div>
           <div class="alert__desc">{{ errorMsg }}</div>
         </div>
         <button class="alert__close" type="button" aria-label="关闭" @click="errorMsg = ''">
@@ -119,7 +131,39 @@
               <span>正在生成日报…</span>
             </div>
           </div>
-          <div v-if="reportContent" class="markdown" v-html="renderMarkdown(reportContent)"></div>
+          <div v-if="reportContent" class="insight-panel">
+            <div class="metric-grid">
+              <button
+                v-for="card in metricCards"
+                :key="card.key"
+                class="metric-card"
+                :class="{ 'metric-card--active': activeMetric === card.key }"
+                type="button"
+                @click="handleMetricClick(card.key)"
+              >
+                <span class="metric-card__label">{{ card.label }}</span>
+                <span class="metric-card__value">{{ card.count }}</span>
+                <span class="metric-card__delta" :class="card.deltaClass">{{ card.deltaText }}</span>
+              </button>
+            </div>
+            <div v-if="aiSummary.length" class="ai-summary">
+              <h4 class="ai-summary__title">AI 今日总结</h4>
+              <ul class="ai-summary__list">
+                <li v-for="(line, index) in aiSummary" :key="index">{{ line }}</li>
+              </ul>
+            </div>
+            <div v-if="activeMetricItems.length" class="metric-detail">
+              <h4 class="metric-detail__title">{{ activeMetricLabel }}详情</h4>
+              <ul class="metric-detail__list">
+                <li v-for="(item, index) in activeMetricItems" :key="index">
+                  <strong>{{ item.title }}</strong>
+                  <span>{{ item.source }} · {{ item.status }} · {{ item.priority }}优先级</span>
+                  <span v-if="item.next_action">下一步：{{ item.next_action }}</span>
+                </li>
+              </ul>
+            </div>
+            <div class="markdown" v-html="renderMarkdown(reportContent)"></div>
+          </div>
           <div v-else class="state">
             <div class="state__art state__art--preview" aria-hidden="true">
               <svg viewBox="0 0 64 64" fill="none">
@@ -158,10 +202,15 @@ import axios from 'axios'
 
 const targetDate = ref('')
 const memberName = ref('')
+const toEmail = ref('')
 const rawData = ref('')
 const reportContent = ref('')
+const insights = ref({})
+const activeMetric = ref('')
 const loading = ref(false)
+const sending = ref(false)
 const errorMsg = ref('')
+const errorTitle = ref('数据加载失败')
 const statusText = ref('—')
 const toastMsg = ref('')
 let toastTimer = null
@@ -172,6 +221,32 @@ const statusChipClass = computed(() => {
   if (statusText.value === '采集完成') return 'status-chip--ok'
   return 'status-chip--idle'
 })
+
+const metricDefinitions = [
+  { key: 'completed', label: '今日完成任务数' },
+  { key: 'in_progress', label: '进行中任务数' },
+  { key: 'pending', label: '待处理任务数' },
+  { key: 'important', label: '今日重要事项数' }
+]
+
+const metricCards = computed(() => metricDefinitions.map((definition) => {
+  const metric = insights.value?.metrics?.[definition.key] || {}
+  const delta = Number(metric.delta || 0)
+  return {
+    ...definition,
+    count: Number(metric.count || 0),
+    deltaText: delta > 0 ? `较昨日 +${delta}` : delta < 0 ? `较昨日 ${delta}` : '较昨日无变化',
+    deltaClass: delta > 0 ? 'metric-card__delta--up' : delta < 0 ? 'metric-card__delta--down' : ''
+  }
+}))
+
+const aiSummary = computed(() => insights.value?.ai_summary || [])
+const activeMetricLabel = computed(() => metricDefinitions.find((item) => item.key === activeMetric.value)?.label || '')
+const activeMetricItems = computed(() => insights.value?.metrics?.[activeMetric.value]?.items || [])
+
+const handleMetricClick = (key) => {
+  activeMetric.value = activeMetric.value === key ? '' : key
+}
 
 const showToast = (msg) => {
   toastMsg.value = msg
@@ -188,6 +263,7 @@ const renderMarkdown = (mdText) => {
 
 const handleRefresh = async () => {
   errorMsg.value = ''
+  errorTitle.value = '数据加载失败'
   if (!targetDate.value) {
     errorMsg.value = '请选择日期'
     return
@@ -201,6 +277,8 @@ const handleRefresh = async () => {
     })
     rawData.value = JSON.stringify(res.data, null, 2)
     reportContent.value = res.data.data
+    insights.value = res.data.insights || {}
+    activeMetric.value = ''
     statusText.value = '采集完成'
   } catch (err) {
     console.error(err)
@@ -228,5 +306,45 @@ const handleExportHtml = () => {
   a.click()
   URL.revokeObjectURL(url)
   showToast('HTML 已导出')
+}
+
+const handleSendReport = async () => {
+  errorMsg.value = ''
+  errorTitle.value = '邮件发送失败'
+
+  const recipient = toEmail.value.trim()
+  if (!recipient) {
+    errorMsg.value = '请填写老师邮箱'
+    return
+  }
+  sending.value = true
+  try {
+    const res = await axios.post('/api/send-report', {
+      to_email: recipient,
+      date: targetDate.value,
+      member: memberName.value.trim()
+    })
+
+    if (res.data?.code !== 0) {
+      errorMsg.value = res.data?.message || '邮件发送失败'
+      return
+    }
+    reportContent.value = res.data?.data || ''
+    insights.value = res.data?.insights || {}
+    activeMetric.value = ''
+    rawData.value = JSON.stringify(res.data?.raw || {}, null, 2)
+    statusText.value = '采集完成'
+    const warnings = res.data?.meta?.warnings || []
+    showToast(warnings.length ? '日报已发送，部分数据源尚未配置' : '日报已自动生成并发送')
+  } catch (err) {
+    console.error(err)
+    errorMsg.value = err.response?.data?.message || '邮件发送失败，请确认后端服务及邮箱配置'
+  } finally {
+    sending.value = false
+  }
+}
+
+const handleAuthorizeFeishu = () => {
+  window.open('/api/oauth/start', '_blank', 'noopener')
 }
 </script>
