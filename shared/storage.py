@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import sqlite3
-from dataclasses import dataclass
+import json
+from dataclasses import dataclass, field
 from datetime import date, datetime
 from pathlib import Path
 
@@ -16,6 +17,7 @@ class DailyReportRecord:
     markdown: str
     html: str
     generated_at: datetime
+    insights: dict = field(default_factory=dict)
 
 
 class ReportStorage:
@@ -43,10 +45,18 @@ class ReportStorage:
                     markdown TEXT NOT NULL,
                     html TEXT NOT NULL,
                     generated_at TEXT NOT NULL,
+                    insights TEXT NOT NULL DEFAULT '{}',
                     UNIQUE(report_date, team_name)
                 )
                 """
             )
+            columns = {
+                row["name"] for row in conn.execute("PRAGMA table_info(daily_reports)")
+            }
+            if "insights" not in columns:
+                conn.execute(
+                    "ALTER TABLE daily_reports ADD COLUMN insights TEXT NOT NULL DEFAULT '{}'"
+                )
             conn.commit()
 
     def save_report(
@@ -56,18 +66,20 @@ class ReportStorage:
         markdown: str,
         html: str,
         generated_at: datetime | None = None,
+        insights: dict | None = None,
     ) -> int:
         """写入或更新一条日报记录，返回记录 id。"""
         generated = generated_at or datetime.now()
         with self._connect() as conn:
             cursor = conn.execute(
                 """
-                INSERT INTO daily_reports (report_date, team_name, markdown, html, generated_at)
-                VALUES (?, ?, ?, ?, ?)
+                INSERT INTO daily_reports (report_date, team_name, markdown, html, generated_at, insights)
+                VALUES (?, ?, ?, ?, ?, ?)
                 ON CONFLICT(report_date, team_name) DO UPDATE SET
                     markdown = excluded.markdown,
                     html = excluded.html,
-                    generated_at = excluded.generated_at
+                    generated_at = excluded.generated_at,
+                    insights = excluded.insights
                 """,
                 (
                     report_date.isoformat(),
@@ -75,6 +87,7 @@ class ReportStorage:
                     markdown,
                     html,
                     generated.isoformat(),
+                    json.dumps(insights or {}, ensure_ascii=False),
                 ),
             )
             conn.commit()
@@ -94,7 +107,7 @@ class ReportStorage:
         with self._connect() as conn:
             row = conn.execute(
                 """
-                SELECT id, report_date, team_name, markdown, html, generated_at
+                SELECT id, report_date, team_name, markdown, html, generated_at, insights
                 FROM daily_reports
                 WHERE report_date = ? AND team_name = ?
                 """,
@@ -109,7 +122,7 @@ class ReportStorage:
         with self._connect() as conn:
             rows = conn.execute(
                 """
-                SELECT id, report_date, team_name, markdown, html, generated_at
+                SELECT id, report_date, team_name, markdown, html, generated_at, insights
                 FROM daily_reports
                 ORDER BY report_date DESC, id DESC
                 LIMIT ?
@@ -127,4 +140,5 @@ class ReportStorage:
             markdown=row["markdown"],
             html=row["html"],
             generated_at=datetime.fromisoformat(row["generated_at"]),
+            insights=json.loads(row["insights"] or "{}"),
         )

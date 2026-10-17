@@ -51,7 +51,7 @@ def test_send_signature_returns_bool_on_success():
     assert smtp.send_message.called
 
 
-def test_subject_contains_date_and_team_name():
+def test_subject_contains_date_and_student_name():
     report = _sample_report()
     smtp = MagicMock()
     captured: dict[str, Message] = {}
@@ -74,7 +74,8 @@ def test_subject_contains_date_and_team_name():
     msg = captured["msg"]
     subject = msg["Subject"]
     assert "2026-09-27" in subject
-    assert "研发团队" in subject
+    assert "研一张三" in subject
+    assert subject.endswith("智能日报")
 
 
 def test_body_is_html_daily_report():

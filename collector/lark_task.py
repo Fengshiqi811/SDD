@@ -36,6 +36,7 @@ class TaskRecord:
     status_from: str
     status_to: str
     updated_at: datetime
+    due_at: datetime | None = None
 
 
 def collect(
@@ -163,7 +164,6 @@ def _list_changed_tasks(
     while True:
         params: dict[str, Any] = {
             "page_size": PAGE_SIZE,
-            "completed": "false",
             "updated_from": _to_ms(since),
             "updated_to": _to_ms(until),
         }
@@ -312,15 +312,25 @@ def _to_task_record(
     if not title:
         return None
 
+    completed_at = item.get("completed_at")
     status_to = str(item.get("status") or item.get("status_to") or "")
-    status_from = str(item.get("status_from") or item.get("previous_status") or "")
     if not status_to:
-        return None
+        status_to = "done" if completed_at else "in_progress"
+    status_from = str(item.get("status_from") or item.get("previous_status") or "")
     if not status_from:
-        # 无显式原状态时，按完成态做保守推断
-        status_from = "todo" if status_to == "done" else "unknown"
+        status_from = "todo" if status_to == "done" else "todo"
 
-    updated_raw = item.get("updated_at") or item.get("update_time") or item.get("completed_at")
+    due_timestamp = None
+    due = item.get("due")
+    if isinstance(due, dict):
+        due_timestamp = due.get("timestamp")
+    updated_raw = (
+        item.get("updated_at")
+        or item.get("update_time")
+        or completed_at
+        or item.get("created_at")
+        or due_timestamp
+    )
     updated_at = _parse_datetime(updated_raw)
     if updated_at is None:
         return None
@@ -333,12 +343,17 @@ def _to_task_record(
         return None
 
     assignee = _extract_assignee(item)
+    due_at = None
+    due = item.get("due")
+    if isinstance(due, dict):
+        due_at = _parse_datetime(due.get("timestamp"))
     return TaskRecord(
         assignee=assignee,
         title=title,
         status_from=status_from,
         status_to=status_to,
         updated_at=updated_at,
+        due_at=due_at,
     )
 
 
@@ -373,6 +388,8 @@ def _parse_datetime(value: Any) -> datetime | None:
             ts /= 1000.0
         return datetime.fromtimestamp(ts, tz=timezone.utc)
     if isinstance(value, str):
+        if value.isdigit():
+            return _parse_datetime(int(value))
         try:
             return datetime.fromisoformat(value.replace("Z", "+00:00"))
         except ValueError:

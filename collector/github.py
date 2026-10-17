@@ -113,16 +113,22 @@ def _collect_repo(
     rate_limit_retries: int,
     sleep_fn: Callable[[float], None],
 ) -> list[CommitRecord]:
-    commit_summaries = _list_commits(
-        client=client,
-        repo=repo,
-        since=since,
-        until=until,
-        max_retries=max_retries,
-        retry_interval=retry_interval,
-        rate_limit_retries=rate_limit_retries,
-        sleep_fn=sleep_fn,
-    )
+    try:
+        commit_summaries = _list_commits(
+            client=client,
+            repo=repo,
+            since=since,
+            until=until,
+            max_retries=max_retries,
+            retry_interval=retry_interval,
+            rate_limit_retries=rate_limit_retries,
+            sleep_fn=sleep_fn,
+        )
+    except _CollectFailed as exc:
+        if "HTTP 409" in str(exc):
+            logger.info("仓库为空或尚无提交，跳过", extra={"repo": repo})
+            return []
+        raise
 
     records: list[CommitRecord] = []
     for summary in commit_summaries:

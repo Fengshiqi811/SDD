@@ -8,7 +8,7 @@ import time
 from email.message import EmailMessage
 from typing import Any, Callable
 
-from generator.formatter import DailyReport
+from generator.formatter import DailyReport, build_report_subject
 from shared.logger import get_logger
 
 logger = get_logger("notifier.email")
@@ -91,7 +91,7 @@ def _build_message(
     sender: str,
 ) -> EmailMessage:
     msg = EmailMessage()
-    msg["Subject"] = f"{report.team_name} 日报 {report.date.isoformat()}"
+    msg["Subject"] = build_report_subject(report)
     msg["From"] = sender
     msg["To"] = ", ".join(recipients)
     msg.set_content(report.html, subtype="html")
