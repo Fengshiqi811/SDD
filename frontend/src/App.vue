@@ -105,7 +105,7 @@
               <svg viewBox="0 0 64 64" fill="none">
                 <rect x="10" y="14" width="44" height="36" rx="6" stroke="currentColor" stroke-width="2.2"/>
                 <path d="M18 24h28M18 32h20M18 40h24" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-                <circle cx="46" cy="18" r="8" fill="#1476ff" stroke="none"/>
+                <circle cx="46" cy="18" r="8" fill="#2e8b57" stroke="none"/>
                 <path d="M43.5 18.2l2 2 3.5-3.8" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </div>

@@ -1,5 +1,12 @@
 name: Daily Report
 
+permissions:
+  contents: read
+
+concurrency:
+  group: daily-report
+  cancel-in-progress: false
+
 on:
   schedule:
     # UTC 13:00 = Asia/Shanghai 21:00
@@ -7,7 +14,11 @@ on:
   workflow_dispatch:
 
 jobs:
+  test:
+    uses: ./.github/workflows/ci.yml
+
   send-report:
+    needs: test
     runs-on: ubuntu-latest
     timeout-minutes: 20
 

@@ -9,16 +9,16 @@
 :host {
   /* 1.1 品牌色 Brand */
   --tv-base-color-brand: #191919;
-  --tv-base-color-brand-1: #f0f7ff;
-  --tv-base-color-brand-2: #deecff;
-  --tv-base-color-brand-3: #b3d6ff;
-  --tv-base-color-brand-4: #7eb7fc;
-  --tv-base-color-brand-5: #4191fa;
-  --tv-base-color-brand-6: #1476ff; /* 主交互蓝 */
-  --tv-base-color-brand-7: #0f5ed4;
-  --tv-base-color-brand-8: #0845a6;
-  --tv-base-color-brand-9: #022e7a;
-  --tv-base-color-brand-10: #001a4a;
+  --tv-base-color-brand-1: #edf8f0;
+  --tv-base-color-brand-2: #d7f0dc;
+  --tv-base-color-brand-3: #a9dfb5;
+  --tv-base-color-brand-4: #78c98a;
+  --tv-base-color-brand-5: #4caf66;
+  --tv-base-color-brand-6: #2e8b57; /* 主交互绿 */
+  --tv-base-color-brand-7: #246f46;
+  --tv-base-color-brand-8: #1b5736;
+  --tv-base-color-brand-9: #123e27;
+  --tv-base-color-brand-10: #0a2618;
 
   /* 1.2 中立色 Neutral */
   --tv-base-color-common-1: #ffffff;
@@ -53,8 +53,8 @@
   --tv-base-color-error-6: #f23030;
   --tv-base-color-error-7: #cf1f1f;
 
-  --tv-base-color-info-6: #1476ff;
-  --tv-base-color-info-1: #f0f7ff;
+  --tv-base-color-info-6: #2e8b57;
+  --tv-base-color-info-1: #edf8f0;
 
   /* 2.x 语义别名（组件直接消费） */
   --tv-color-text: var(--tv-base-color-common-11);
@@ -78,7 +78,7 @@
   --tv-color-border: var(--tv-base-color-common-6);
   --tv-color-border-soft: var(--tv-base-color-common-4);
   --tv-color-border-strong: var(--tv-base-color-common-7);
-  --tv-color-focus-ring: rgba(20, 118, 255, 0.22);
+  --tv-color-focus-ring: rgba(46, 139, 87, 0.22);
 
   --tv-color-mask: rgba(0, 0, 0, 0.4);
   --tv-color-mask-light: rgba(255, 255, 255, 0.66);
