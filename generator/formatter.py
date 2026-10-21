@@ -9,6 +9,7 @@ from datetime import date, datetime
 from collector.github import CommitRecord
 from collector.lark_msg import MessageRecord
 from collector.lark_task import TaskRecord
+from generator.email_report import render_email_html
 from generator.insights import build_insights
 from generator.template import markdown_to_html, render_markdown
 
@@ -73,7 +74,7 @@ def generate(
         insights=insights,
     )
     html = markdown_to_html(markdown)
-    return DailyReport(
+    report = DailyReport(
         date=date,
         team_name=team_name,
         members=members,
@@ -82,6 +83,8 @@ def generate(
         html=html,
         insights=insights,
     )
+    report.html = render_email_html(report)
+    return report
 
 
 def _to_view(member: MemberReport) -> dict:

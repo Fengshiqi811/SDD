@@ -103,6 +103,34 @@ notifier/    # 推送层
 shared/      # 共享基础层
 tests/       # 测试
 ```
+
+## 自己使用系统
+
+本地手动发送：
+
+```powershell
+uv sync
+python main.py --send-now
+```
+
+网页方式：
+
+```powershell
+python main.py
+cd frontend
+npm run dev
+```
+
+在页面选择日期、填写老师邮箱，点击“刷新”生成，再点击“生成并发送”。
+
+云端自动发送：
+
+1. 将代码推送到 GitHub。
+2. 在仓库 `Settings -> Secrets and variables -> Actions` 配置飞书、邮箱等 Secrets。
+3. 打开 `Actions -> Daily Report -> Run workflow` 可手动测试。
+4. 工作流每天北京时间 21:00 自动运行，发送给 `REPORT_SCHEDULE_TO` 中的收件人。
+
+`REPORT_DATE_OFFSET=-1` 表示统计前一天的数据，适合第二天发送前一天日报。设为 `0` 则统计当天数据。
 # PageDailyReport 智能日报生成器
 ## 启动步骤
 1. 启动后端：python main.py （端口5000）

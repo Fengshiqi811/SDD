@@ -38,6 +38,7 @@ jobs:
         env:
           REPORT_TEAM_NAME: 智能日报
           REPORT_GRADE: 研一
+          REPORT_DATE_OFFSET: "-1"
           REPORT_MEMBER_NAME: 冯诗祺
           REPORT_MEMBER_GITHUB: Fengshiqi811
           REPORT_MEMBER_LARK: ${{ secrets.REPORT_MEMBER_LARK }}

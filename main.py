@@ -496,7 +496,7 @@ def _run_scheduled_report() -> int:
         logger.error("定时日报未配置收件人")
         return 1
 
-    report_date = datetime.now(_report_timezone()).date()
+    report_date = _default_report_date()
     report, _ = _build_report(
         config,
         report_date,
@@ -691,11 +691,20 @@ def _parse_report_date(raw_value: Any) -> date:
     if isinstance(raw_value, date):
         return raw_value
     if raw_value is None or not str(raw_value).strip():
-        return datetime.now(_report_timezone()).date()
+        return _default_report_date()
     try:
         return date.fromisoformat(str(raw_value).strip())
     except ValueError as exc:
         raise ValueError("日期格式必须为 YYYY-MM-DD") from exc
+
+
+def _default_report_date() -> date:
+    """默认日报日期，可通过 REPORT_DATE_OFFSET 调整为昨天等。"""
+    try:
+        offset = int(os.getenv("REPORT_DATE_OFFSET", "0"))
+    except ValueError:
+        offset = 0
+    return datetime.now(_report_timezone()).date() + timedelta(days=offset)
 
 
 def _oauth_redirect_uri() -> str:
