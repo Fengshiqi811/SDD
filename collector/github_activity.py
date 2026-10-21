@@ -16,6 +16,10 @@ GITHUB_API_BASE = "https://api.github.com"
 DEFAULT_TIMEOUT = 30.0
 
 
+def _ssl_verify() -> bool:
+    return os.getenv("GITHUB_SSL_VERIFY", "true").strip().lower() not in {"0", "false", "no", "off"}
+
+
 def collect_activity(
     repos: list[str],
     since: datetime,
@@ -48,7 +52,13 @@ def collect_activity(
         headers["Authorization"] = f"Bearer {auth_token}"
 
     owns_client = client is None
-    http_client = client or httpx.Client(base_url=GITHUB_API_BASE, headers=headers, timeout=timeout)
+    http_client = client or httpx.Client(
+        base_url=GITHUB_API_BASE,
+        headers=headers,
+        timeout=timeout,
+        trust_env=False,
+        verify=_ssl_verify(),
+    )
     errors: list[str] = []
     date_range = f"{since.date().isoformat()}..{until.date().isoformat()}"
 

@@ -23,6 +23,10 @@ DEFAULT_RETRY_INTERVAL = 5.0
 DEFAULT_RATE_LIMIT_RETRIES = 3
 
 
+def _ssl_verify() -> bool:
+    return os.getenv("GITHUB_SSL_VERIFY", "true").strip().lower() not in {"0", "false", "no", "off"}
+
+
 @dataclass(frozen=True)
 class CommitRecord:
     author: str
@@ -65,7 +69,13 @@ def collect(
         headers["Authorization"] = f"Bearer {auth_token}"
 
     owns_client = client is None
-    http_client = client or httpx.Client(base_url=GITHUB_API_BASE, headers=headers, timeout=timeout)
+    http_client = client or httpx.Client(
+        base_url=GITHUB_API_BASE,
+        headers=headers,
+        timeout=timeout,
+        trust_env=False,
+        verify=_ssl_verify(),
+    )
 
     try:
         records: list[CommitRecord] = []
